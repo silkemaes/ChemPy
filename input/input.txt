@@ -1,15 +1,22 @@
-### inputfile TorchChem ###
+### Inputfile TorchChem ###
+### ------------------- ###
+
+## Use : to split input to create specific models.
+## Use ; to cross all input values.
 
 
+## --
 
 # density [Msol/yr]
-rho = 1e-6
+dens = 1e-6
 
 # temperature [K]
-T = 2000
+temp = 2000
 
 # overall dilution of the radiation field
 delta = 1
 
 # species-specific extinction (connected to optical depth)
 Av = 1
+
+## --
