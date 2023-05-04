@@ -9,7 +9,7 @@ Written by Silke Maes, April 2023.
 Original Fortran code by rate10odecsT.pl on Sun, Jul 21 2019, 
 using ratefile: rate16_IP_10000K.rates, from http://udfa.ajmarkwick.net/index.php. 
 '''
-def ODE(Y, X, K, ACCR, TOTAL):
+def ODE(Y, X, K, ACCR, TOTAL, HNR):
 
 	HLOSS=-ACCR*Y(1)
 
