@@ -1,0 +1,15 @@
+### inputfile TorchChem ###
+
+
+
+# density [Msol/yr]
+rho = 1e-6
+
+# temperature [K]
+T = 2000
+
+# overall dilution of the radiation field
+delta = 1
+
+# species-specific extinction (connected to optical depth)
+Av = 1
