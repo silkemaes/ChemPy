@@ -1,6 +1,3 @@
-import numpy as np
-
-
 '''
 Python code to calculate the reaction rates per reaction type:
 - Two-body reaction (Arrhenius law)
@@ -8,8 +5,14 @@ Python code to calculate the reaction rates per reaction type:
 - CR = cosmic ray-induced photoreaction
 - photodissociation
 
-Silke Maes, May 2023
+Written by Silke Maes, May 2023
 '''
+
+
+
+
+import numpy as np
+
 
 
 
