@@ -1,14 +1,14 @@
 ### Inputfile TorchChem ###
 ### ------------------- ###
 
-## Use : to split input to create specific models.
-## Use ; to cross all input values.
+## Split multiple values by space or tab
 
+## Cross over models? yes/no
 
 ## --
 
 # density [Msol/yr]
-dens = 1e-6
+dens = 1e-6 ; 1e-5
 
 # temperature [K]
 temp = 2000
