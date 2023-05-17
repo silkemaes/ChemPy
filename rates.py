@@ -31,37 +31,82 @@ reaction_type = {'AD'  : 'AD (associative detachment)',
                  'AP'  : 'AP (accompaning photon)'
 }
 
-## dit klopt niet helemaal
-ranges_type = {'AD'  : [0,131]    ,
-               'CD'  : [132,145]  ,
-               'CE'  : [146,724]  ,
-               'CP'  : [725,735]  ,
-               'CR'  : [736,984]  ,
-               'DR'  : [985,1515] ,
-               'IN'  : [1516,4104],
-               'MN'  : [4105,5085],
-               'NN'  : [5086,5704],
-               'PH'  : [5705,6040],
-               'RA'  : [6041,6132],
-               'REA' : [6133,6156],
-               'RR'  : [6157,6172],
-}
-
-source_type = { 'E' : 'estimated',
-                'M' : 'measured',
-                'C' : 'calculated',
-                'L' : 'literature (experimental)'
-              }
-
-accuracy    = { 'A' : '< 0.25',
-                'B' : '< 0.50',
-                'C' : 'within factor of 2',
-                'D' : 'within order of magn',
-                'E' : 'highly uncertain'
-              }
 
 
-ding = 1/300.
+## For numbers for faster calculation
+frac = 1/300.
+w = 0.5         ## grain albedo
+alb = 1./(1.-w)
+
+
+## Reading rate & species file
+
+'''
+Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) 
+(McElroy et al., 2013, M. VdS' papers)
+'''
+def read_rate_file():
+
+    loc = 'rates/rate16_IP_2330K_AP_6000K.rates'
+
+    rates = dict()
+    with open(loc, 'r') as f:
+        lines = f.readlines()
+        for i in range(len(lines)):
+            line = lines[i].split(':')
+            rates[int(line[0])] = line[1:]
+    
+    type = list()
+    α = list()
+    β = list()
+    γ = list()
+    for rate in rates:
+        type.append((rates[rate][0]))
+        α.append(float(rates[rate][8]))
+        β.append(float(rates[rate][9]))
+        γ.append(float(rates[rate][10]))
+
+    return rates, type, np.array(α), np.array(β), np.array(γ)
+
+'''
+Read species file (Rate12, UMIST database)
+(McElroy et al., 2013)
+'''
+def read_specs_file(chemtype):
+
+    loc = 'rates/rate16_IP_6000K_'+chemtype+'rich_mean_Htot.specs'
+
+    specs = np.loadtxt(loc, skiprows=1,   max_rows=466, usecols=(1), dtype=str)     ## Y in fortran77 code
+    consv = np.loadtxt(loc, skiprows=468, max_rows=2  , usecols=(1), dtype=str)     ## X in fortran77 code
+    parnt = np.loadtxt(loc, skiprows=471   , usecols= (0,1), dtype=str)
+    
+    return specs, parnt, consv
+
+
+
+## Setting initial abundances
+
+def initialise_abs(chemtype):
+    specs, parnt, consv = read_specs_file(chemtype)
+
+    Y = np.zeros(len(specs))
+
+    for i in range(len(specs)):
+        for j in range(len(parnt)):
+            if specs[i] == parnt[j]:
+                Y[i] = consv[j]
+
+    return Y
+
+
+def calculating_rates(T, δ, Av, w):
+
+    rates, type, α, β, γ = read_rate_file()
+
+    K = np.zeros(len(type))
+
+    return K
+
 
 
 ## Rate equations
@@ -81,7 +126,7 @@ For the following reaction types:
 '''
 @njit
 def Arrhenius_rate(α, β, γ, T):
-    k = α*(T*ding)**β*np.exp(-γ/T)
+    k = α*(T*frac)**β*np.exp(-γ/T)
     return k
 
 '''
@@ -108,7 +153,7 @@ For the following reaction type: CR
 '''
 @njit
 def CR_rate(α, β, γ, T, w):
-    k = α * (T*ding)**β * (γ)/(1.-w)
+    k = α * (T*frac)**β * (γ)*alb
     return k
 
 '''
