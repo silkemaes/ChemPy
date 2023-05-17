@@ -7,11 +7,12 @@
 
 ## --
 
-# density [Msol/yr]
-dens = 1e-6 ; 1e-5
+
+# density 
+dens = np.array([1e-6, 1e-5])
 
 # temperature [K]
-temp = 2000
+temp = 2000 : 2500
 
 # overall dilution of the radiation field
 delta = 1
@@ -20,3 +21,11 @@ delta = 1
 Av = 1
 
 ## --
+
+
+
+# carthesis product
+
+# jason
+# tml
+# yml

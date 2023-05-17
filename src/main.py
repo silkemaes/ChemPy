@@ -11,24 +11,48 @@ pi = np.pi
 
 
 #-- GRAIN PARAMETERS FOR H2 FORMATION AND CR IONISATION
-rGr = 1.0E-5        ## grain radius [cm]
-nGr = 1.5e-12       ## grain number density/H2 (assuming gas/dust = 200, rho = 3.5 g/cm^3)
+rGr = 1.0E-5        ## grain radius [cm] (A_G in fortran77 code)
+nGr = 1.5e-12       ## grain number density/H2 (assuming gas/dust = 200, rho = 3.5 g/cm^3) (X_G in fortran77 code)
 w = 0.5             ## grain albedo
+ding2 = 1.-w
+γ_CO = 3.           ## (GAMCO in fortran77)
 AUV_AV = 4.65
 stckH = 0.3         ## sticking coefficient for H atoms
 
 
 
-def readrates(chemtype):
-    if chemtype == 'C':
-        ratefile = '/lhome/silkem/ChemTorch/ChemTorch/rates/rate16_IP_6000K_Crich_mean_Htot.specs'
+def read_rate_file():
 
-    return
+    loc = 'rates/rate16_IP_2330K_AP_6000K.rates'
 
-def readinput(file):
+    rates = dict()
+    with open(loc, 'r') as f:
+        lines = f.readlines()
+        for i in range(len(lines)):
+            line = lines[i].split(':')
+            rates[int(line[0])] = line[1:]
+    
+    type = list()
+    α = list()
+    β = list()
+    γ = list()
+    for rate in rates:
+        type.append((rates[rate][0]))
+        α.append(float(rates[rate][8]))
+        β.append(float(rates[rate][9]))
+        γ.append(float(rates[rate][10]))
+
+    return rates, type, np.array(α), np.array(β), np.array(γ)
+
+
+## input
+ρ = 1e-6
+T = 2500.
+δ = 1.
+Av = 1.
     
 
-    Haccr = stckH *pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(pi*mH))**0.5
-    return ρ, T, δ, Av, Haccr
+Haccr = stckH *pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(pi*mH))**0.5
+
 
 
