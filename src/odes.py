@@ -2829,4 +2829,4 @@ def ODE(Y, TOTAL, YDOT, X, K, HNR, ACCR):
 	D=0.+K[994]*X[1]*HNR+K[995]*X[1]*HNR+K[996]*X[1]*HNR+K[997]*X[1]*HNR
 	YDOT[466]=F-(D*Y[466])
 
-	return X, YDOT
+	return X, YDOT, Y

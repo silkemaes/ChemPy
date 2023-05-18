@@ -57,16 +57,16 @@ def read_rate_file():
             rates[int(line[0])] = line[1:]
     
     type = list()
-    α = list()
-    β = list()
-    γ = list()
-    for rate in rates:
-        type.append((rates[rate][0]))
-        α.append(float(rates[rate][8]))
-        β.append(float(rates[rate][9]))
-        γ.append(float(rates[rate][10]))
+    α = np.zeros(len(rates))
+    β = np.zeros(len(rates))
+    γ = np.zeros(len(rates))
+    for nb in rates:
+        type.append(str(rates[nb][0]))
+        α[nb-1] = float(rates[nb][8])
+        β[nb-1] = float(rates[nb][9])
+        γ[nb-1] = float(rates[nb][10])
 
-    return rates, type, np.array(α), np.array(β), np.array(γ)
+    return rates, type, α, β, γ
 
 '''
 Read species file (Rate12, UMIST database)
@@ -92,39 +92,39 @@ def initialise_abs(chemtype):
     specs, parnt, consv = read_specs_file(chemtype)
 
     ## Initial abundances of the non-conserved species
-    Y = np.zeros(len(specs)+1)
+    abs = np.zeros(len(specs)+1)
 
     for i in range(len(specs)):
         for j in range(len(parnt)):
             if specs[i] == parnt[0][j]:
-                Y[i+1] = parnt[1][j]
+                abs[i+1] = parnt[1][j]
         # if specs[i] == 'CO'
         #     iCO = i
 
     ## Initialise abundances of the conserved species
-    TOTAL = np.zeros(len(consv)+1)
-    TOTAL[2] = 0.5
+    abs_consv = np.zeros(len(consv)+1)
+    abs_consv[2] = 0.5
 
-    return Y, TOTAL
+    return abs, abs_consv
 
 
 ## Calculating the reaction rates
 
 def calculating_rates(T, δ, Av):
 
-    rates, type, α, β, γ = read_rate_file()
+    rates,type, α, β, γ = read_rate_file()
 
-    k = np.zeros(len(type))
+    k = np.zeros(len(type)+1)
 
     for i in range(len(type)):
         if type[i] == 'CP':
-            k[i] = CP_rate(α[i]) 
+            k[i+1] = CP_rate(α[i]) 
         if type[i] == 'CR':
-            k[i] = CR_rate(α[i], β[i], γ[i], T)
+            k[i+1] = CR_rate(α[i], β[i], γ[i], T)
         if type[i] == 'PH':
-            k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
+            k[i+1] = photodissociation_rate(α[i], γ[i], δ, Av)
         else:
-            k[i] = Arrhenius_rate(α[i], β[i], γ[i], T)
+            k[i+1] = Arrhenius_rate(α[i], β[i], γ[i], T)
 
     return k
 
