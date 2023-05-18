@@ -1,9 +1,14 @@
-import numpy as np
-from astropy import constants as cst
+import numpy                    as np
+from astropy import constants   as cst
+import datetime                 as dt
 
 ##import own scripts
-import rates
-import odes
+import rates    as rates
+import odes     as odes
+
+
+print('------------------START:', dt.datetime.now(),'---------------------')
+print('')
 
 
 ## Physical constants
@@ -35,6 +40,8 @@ chemtype = 'C'
 ## calculate H accretion on dust
 Haccr = stckH *pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(pi*mH))**0.5
 
+print(Haccr)
+
 
 n, n_consv = rates.initialise_abs(chemtype)
 
@@ -43,7 +50,23 @@ X    = np.zeros(len(n_consv))
 
 k = rates.calculating_rates(T, δ, Av)
 
+print(k)
+
 X, ndot = odes.ODE(n, n_consv, ndot, X, k, ρ, Haccr)
+
+print(X, ndot)
+
+
+
+
+
+
+
+
+
+
+print('')
+print('------------------END:', dt.datetime.now(),'---------------------')
 
 
 
