@@ -35,7 +35,7 @@ reaction_type = {'AD'  : 'AD (associative detachment)',
 
 ## For numbers for faster calculation
 frac = 1/300.
-w = 0.5         ## grain albedo
+w = 0.5             ## grain albedo
 alb = 1./(1.-w)
 
 
@@ -80,32 +80,53 @@ def read_specs_file(chemtype):
     consv = np.loadtxt(loc, skiprows=468, max_rows=2  , usecols=(1), dtype=str)     ## X in fortran77 code
     parnt = np.loadtxt(loc, skiprows=471   , usecols= (0,1), dtype=str)
     
-    return specs, parnt, consv
+    return specs, parnt.T, consv
 
 
 
 ## Setting initial abundances
+'''
 
+'''
 def initialise_abs(chemtype):
     specs, parnt, consv = read_specs_file(chemtype)
 
-    Y = np.zeros(len(specs))
+    ## Initial abundances of the non-conserved species
+    Y = np.zeros(len(specs)+1)
 
     for i in range(len(specs)):
         for j in range(len(parnt)):
-            if specs[i] == parnt[j]:
-                Y[i] = consv[j]
+            if specs[i] == parnt[0][j]:
+                Y[i+1] = parnt[1][j]
+        # if specs[i] == 'CO'
+        #     iCO = i
 
-    return Y
+    ## Initialise abundances of the conserved species
+    TOTAL = np.zeros(len(consv)+1)
+    TOTAL[2] = 0.5
+
+    return Y, TOTAL
 
 
-def calculating_rates(T, δ, Av, w):
+## Calculating the reaction rates
+
+def calculating_rates(T, δ, Av):
 
     rates, type, α, β, γ = read_rate_file()
 
-    K = np.zeros(len(type))
+    k = np.zeros(len(type))
 
-    return K
+    for i in range(len(type)):
+        if type[i] == 'CP':
+            k[i] = CP_rate(α[i]) 
+        if type[i] == 'CR':
+            k[i] = CR_rate(α[i], β[i], γ[i], T)
+        if type[i] == 'PH':
+            k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
+        else:
+            k[i] = Arrhenius_rate(α[i], β[i], γ[i], T)
+
+    return k
 
 
 
@@ -152,7 +173,7 @@ Physics dependent parameters:
 For the following reaction type: CR
 '''
 @njit
-def CR_rate(α, β, γ, T, w):
+def CR_rate(α, β, γ, T):
     k = α * (T*frac)**β * (γ)*alb
     return k
 

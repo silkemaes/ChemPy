@@ -1,6 +1,10 @@
 import numpy as np
 from astropy import constants as cst
 
+##import own scripts
+import rates
+import odes
+
 
 ## Physical constants
 kB = cst.k_B.cgs.value          ## Boltzmann constant [erg/K]
@@ -19,8 +23,6 @@ AUV_AV = 4.65
 stckH = 0.3         ## sticking coefficient for H atoms
 
 
-
-
 ## input values physics
 ρ = 1e-6
 T = 2500.
@@ -30,15 +32,19 @@ Av = 1.
 ## input chemistry
 chemtype = 'C'
 
-
-## read rates-file
-rates, reaction_type, α, β, γ = read_rate_file()
-## read species_file
-specs, parnt, consv = read_specs_file(chemtype)
-
-
 ## calculate H accretion on dust
 Haccr = stckH *pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(pi*mH))**0.5
+
+
+n, n_consv = rates.initialise_abs(chemtype)
+
+ndot = np.zeros(len(n))
+X    = np.zeros(len(n_consv))
+
+k = rates.calculating_rates(T, δ, Av)
+
+X, ndot = odes.ODE(n, n_consv, ndot, X, k, ρ, Haccr)
+
 
 
 
