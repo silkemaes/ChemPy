@@ -11,15 +11,25 @@ using ratefile: rate16_IP_10000K.rates, from http://udfa.ajmarkwick.net/index.ph
 
 ------
 
-Y     = abundances of the non-conserved species
-YDOT  = change in abundances of the conserved species
-X     = abundances of the conserved species
-K     = reaction rates, calculated in xxx
-ACCR  = H accretion onto dust, calculated in main.py from input physics
-TOTAL = ??
-HNR   = input density (ρ)
+t    = time
+Y    = abundances of the non-conserved species
+args = list of arguments of the function:
+     [0]: TOTAL = ??
+     [1]: K     = reaction rates, calculated in xxx
+     [2]: HNR   = input density (ρ)
+     [3]: ACCR  = H accretion onto dust, calculated in main.py from input physics
+X    = abundances of the conserved species
 '''
-def ODE(Y, TOTAL, YDOT, X, K, HNR, ACCR):
+def ODE(t,Y, args):
+
+	TOTAL = args[0]
+	K     = args[1]
+	HNR   = args[2]
+	ACCR  = args[3]
+
+	X     = np.empty(2)
+	YDOT  = np.empty(466)
+
 
 	## Conserved species
 
@@ -33,7 +43,6 @@ def ODE(Y, TOTAL, YDOT, X, K, HNR, ACCR):
 	T = T+3*Y[192]+Y[193]+3*Y[194]+Y[195]+2*Y[197]+4*Y[200]+2*Y[202]+2*Y[203]+2*Y[204]+Y[205]+4*Y[207]+2*Y[209]+4*Y[210]+2*Y[212]+Y[213]+5*Y[215]+Y[216]+Y[217]+Y[220]+2*Y[221]+Y[222]+Y[223]+2*Y[225]+2*Y[226]+3*Y[228]+2*Y[229]+6*Y[230]+6*Y[232]+2*Y[233]+2*Y[234]+3*Y[235]+2*Y[236]+6*Y[237]+6*Y[238]+Y[240]+7*Y[241]+2*Y[243]+3*Y[245]+Y[248]+4*Y[249]+3*Y[250]+7*Y[252]+3*Y[253]+Y[255]+Y[256]+3*Y[261]+Y[262]+2*Y[263]+2*Y[264]+Y[265]+Y[266]+Y[267]+2*Y[268]+2*Y[270]+Y[273]+3*Y[274]+Y[275]+3*Y[278]+Y[279]+4*Y[281]+2*Y[285]+4*Y[286]+Y[289]+5*Y[290]+Y[291]+3*Y[292]+3*Y[293]+Y[294]+Y[295]+2*Y[296]+4*Y[297]+6*Y[298]+2*Y[299]+2*Y[300]+Y[303]+5*Y[305]+3*Y[306]+7*Y[308]+3*Y[309]+Y[310]+Y[311]+6*Y[313]+Y[317]+2*Y[318]+6*Y[319]+6*Y[320]+3*Y[321]+7*Y[322]+3*Y[323]+4*Y[324]+4*Y[325]+4*Y[334]+Y[335]+Y[336]+Y[337]+Y[338]+Y[339]+5*Y[340]+Y[341]+2*Y[342]+2*Y[344]+Y[346]+3*Y[347]+4*Y[348]+4*Y[352]+2*Y[355]+Y[357]+Y[358]+Y[359]+3*Y[360]+Y[361]+3*Y[362]+Y[363]+5*Y[364]+4*Y[365]+2*Y[366]+2*Y[367]+2*Y[368]+3*Y[369]+3*Y[370]+Y[372]+Y[375]+Y[379]
 	T = T+Y[380]+Y[381]+2*Y[382]+2*Y[383]+Y[387]+Y[388]+3*Y[389]+4*Y[391]+2*Y[392]+3*Y[394]+Y[395]+5*Y[396]+6*Y[397]+6*Y[398]+7*Y[400]+Y[403]+Y[405]+Y[409]+Y[410]+Y[411]+2*Y[412]+2*Y[413]+3*Y[414]+4*Y[415]+4*Y[416]+3*Y[417]+5*Y[418]+4*Y[419]+Y[423]+Y[424]+Y[425]+2*Y[426]+2*Y[429]+Y[430]+Y[431]+3*Y[432]+4*Y[433]+2*Y[434]+5*Y[435]+3*Y[436]+Y[440]+Y[441]+Y[442]+2*Y[443]+2*Y[444]+3*Y[445]+4*Y[446]+3*Y[447]+5*Y[448]+4*Y[449]+Y[453]+Y[454]+Y[455]+2*Y[458]+2*Y[459]+Y[460]+3*Y[461]+Y[462]+2*Y[463]+3*Y[464]
 	X[2]=0.+TOTAL[2]-0.5*T
-
 	## Non-conserved species
 	HLOSS=-ACCR*Y[1]
 
@@ -2830,4 +2839,4 @@ def ODE(Y, TOTAL, YDOT, X, K, HNR, ACCR):
 	D=0.+K[994]*X[1]*HNR+K[995]*X[1]*HNR+K[996]*X[1]*HNR+K[997]*X[1]*HNR
 	YDOT[466]=F-(D*Y[466])
 
-	return X, YDOT, Y
+	return YDOT

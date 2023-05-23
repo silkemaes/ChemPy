@@ -11,15 +11,23 @@ using ratefile: rate16_IP_10000K.rates, from http://udfa.ajmarkwick.net/index.ph
 
 ------
 
-Y     = abundances of the non-conserved species
-YDOT  = change in abundances of the conserved species
-X     = abundances of the conserved species
-K     = reaction rates, calculated in xxx
-ACCR  = H accretion onto dust, calculated in main.py from input physics
-TOTAL = ??
-HNR   = input density (ρ)
+t    = time
+Y    = abundances of the non-conserved species
+X    = abundances of the conserved species
+YDOT = change in abundances of the conserved species
+args = list of arguments of the function:
+     [0]: TOTAL = ??
+     [1]: K     = reaction rates, calculated in xxx
+     [2]: HNR   = input density (ρ)
+     [3]: ACCR  = H accretion onto dust, calculated in main.py from input physics
 '''
-def ODE(Y, TOTAL, YDOT, X, K, HNR, ACCR):
+def ODE(t,Y, X, YDOT, args):
+
+	TOTAL = args[0]
+	K     = args[1]
+	HNR   = args[2]
+	ACCR  = args[3]
+
 
 	## Conserved species
 
@@ -2830,4 +2838,4 @@ def ODE(Y, TOTAL, YDOT, X, K, HNR, ACCR):
 	D=0.+K[994]*X[1]*HNR+K[995]*X[1]*HNR+K[996]*X[1]*HNR+K[997]*X[1]*HNR
 	YDOT[466]=F-(D*Y[466])
 
-	return X, YDOT, Y
+	return YDOT
