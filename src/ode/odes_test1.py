@@ -22,10 +22,10 @@ X    = abundances of the conserved species
 '''
 def ODE(t,Y, args):
 
-	TOTAL = args[-1]
-	K     = args[0]
-	HNR   = args[1]
-	ACCR  = args[2]
+	TOTAL = args[0]
+	K     = args[1]
+	HNR   = args[2]
+	ACCR  = args[3]
 
 	X     = np.empty(2)
 	YDOT  = np.empty(466)
