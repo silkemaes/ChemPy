@@ -9,7 +9,9 @@ Written by Silke Maes, May 2023
 '''
 
 import numpy as np
-from numba import njit
+from numba   import njit
+
+from pathlib import Path
 
 import sys
 sys.path.insert(1, '/lhome/silkem/ChemTorch/ChemTorch/rates/')
@@ -50,7 +52,11 @@ Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions)
 '''
 def read_rate_file():
 
-    loc = '../rates/rate16_IP_2330K_AP_6000K.rates'
+    
+
+    loc = (Path(__file__).parent / '../rates/rate16_IP_2330K_AP_6000K.rates').resolve()
+
+    # loc = '../rates/rate16_IP_2330K_AP_6000K.rates'
 
     rates = dict()
     with open(loc, 'r') as f:
@@ -77,7 +83,8 @@ Read species file (Rate12, UMIST database)
 '''
 def read_specs_file(chemtype):
 
-    loc = '../rates/rate16_IP_6000K_'+chemtype+'rich_mean_Htot.specs'
+    loc = (Path(__file__).parent / f'../rates/rate16_IP_6000K_{chemtype}rich_mean_Htot.specs').resolve()
+    # loc = '../rates/rate16_IP_6000K_'+chemtype+'rich_mean_Htot.specs'
 
     specs = np.loadtxt(loc, skiprows=1,   max_rows=466, usecols=(1), dtype=str)     ## Y in fortran77 code
     consv = np.loadtxt(loc, skiprows=468, max_rows=2  , usecols=(1), dtype=str)     ## X in fortran77 code

@@ -21,12 +21,7 @@ args = list of arguments of the function:
      [2]: HNR   = input density (ρ)
      [3]: ACCR  = H accretion onto dust, calculated in main.py from input physics
 '''
-def ODE(t,Y, X, YDOT, args):
-
-	TOTAL = args[0]
-	K     = args[1]
-	HNR   = args[2]
-	ACCR  = args[3]
+def ODE(t, Y, X, YDOT, args, TOTAL, K, HNR, ACCR):
 
 
 	## Conserved species
