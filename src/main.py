@@ -1,8 +1,10 @@
 import numpy                    as np
 from astropy import constants   as cst
 import datetime                 as dt
+import sys
 
 ##import own scripts
+sys.path.insert(1, '/lhome/silkem/ChemTorch/ChemTorch/src/ode')
 import rates    as rates
 import odes     as odes
 
@@ -34,6 +36,8 @@ T = 2500.
 δ = 1.
 Av = 1.
 
+timesteps = 1
+
 ## input chemistry
 chemtype = 'C'
 
@@ -41,15 +45,16 @@ chemtype = 'C'
 Haccr = stckH *pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(pi*mH))**0.5
 
 
-n, n_consv = rates.initialise_abs(chemtype)
+n, n_consv = rates.initialise_abs(chemtype)     # n_consv = TOTAL in fortran code
 
 ndot = np.zeros(len(n))
 X    = np.zeros(len(n_consv))
+t    = np.zeros(timesteps)
 
 k = rates.calculating_rates(T, δ, Av)
 
 
-X, ndot, n = odes.ODE(n, n_consv, ndot, X, k, ρ, Haccr)
+X, ndot, n = odes.ODE(t, n, ndot, X, n_consv,k, ρ, Haccr)
 
 
 
