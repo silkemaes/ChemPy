@@ -51,7 +51,7 @@ ndot = np.zeros(len(n))
 X    = np.zeros(len(n_consv))
 t    = np.zeros(timesteps)
 
-k = rates.calculating_rates(T, δ, Av)
+k = rates.calculate_rates(T, δ, Av)
 
 
 X, ndot, n = odes.ODE(t, n, ndot, X, n_consv,k, ρ, Haccr)

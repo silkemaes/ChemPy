@@ -46,13 +46,12 @@ alb = 1./(1.-w)
 
 ## Reading rate & species file
 
-'''
-Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) 
-(McElroy et al., 2013, M. VdS' papers)
-'''
-def read_rate_file():
 
-    
+def read_rate_file():
+    '''
+    Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \\
+    (McElroy et al., 2013, M. VdS' papers)
+    '''
 
     loc = (Path(__file__).parent / '../rates/rate16_IP_2330K_AP_6000K.rates').resolve()
 
@@ -77,12 +76,12 @@ def read_rate_file():
 
     return rates, type, α, β, γ
 
-'''
-Read species file (Rate12, UMIST database)
-(McElroy et al., 2013)
-'''
-def read_specs_file(chemtype):
 
+def read_specs_file(chemtype):
+    '''
+    Read species file (Rate12, UMIST database)\\
+    (McElroy et al., 2013)
+    '''
     loc = (Path(__file__).parent / f'../rates/rate16_IP_6000K_{chemtype}rich_mean_Htot.specs').resolve()
     # loc = '../rates/rate16_IP_6000K_'+chemtype+'rich_mean_Htot.specs'
 
@@ -96,18 +95,21 @@ def read_specs_file(chemtype):
 
 ## Setting initial abundances
 '''
-
+    # todo
+    FOUT!! pas aan
 '''
 def initialise_abs(chemtype):
     specs, parnt, consv = read_specs_file(chemtype)
 
     ## Initial abundances of the non-conserved species
-    abs = np.zeros(len(specs)+1)
+    abs = np.zeros(len(specs),dtype=np.float64)
 
     for i in range(len(specs)):
-        for j in range(len(parnt)):
+        for j in range(parnt.shape[1]):
             if specs[i] == parnt[0][j]:
-                abs[i+1] = parnt[1][j]
+                abs[i] = parnt[1][j]
+                print(i)
+
         # if specs[i] == 'CO'
         #     iCO = i
 
@@ -120,21 +122,25 @@ def initialise_abs(chemtype):
 
 ## Calculating the reaction rates
 
-def calculating_rates(T, δ, Av):
+def calculate_rates(T, δ, Av):
 
     rates,type, α, β, γ = read_rate_file()
 
-    k = np.zeros(len(type)+1)
+    k = np.zeros(len(type))
 
     for i in range(len(type)):
         if type[i] == 'CP':
-            k[i+1] = CP_rate(α[i]) 
-        if type[i] == 'CR':
-            k[i+1] = CR_rate(α[i], β[i], γ[i], T)
-        if type[i] == 'PH':
-            k[i+1] = photodissociation_rate(α[i], γ[i], δ, Av)
+            k[i] = CP_rate(α[i]) 
+        elif type[i] == 'CR':
+            k[i] = CR_rate(α[i], β[i], γ[i], T)
+        elif type[i] == 'PH':
+            k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
+        elif type[i] == 'IP':
+            k[i] = 0
+        elif type[i] == 'AP':
+            k[i] = 0
         else:
-            k[i+1] = Arrhenius_rate(α[i], β[i], γ[i], T)
+            k[i] = Arrhenius_rate(α[i], β[i], γ[i], T)
 
     return k
 
