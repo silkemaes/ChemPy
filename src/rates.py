@@ -108,7 +108,6 @@ def initialise_abs(chemtype):
         for j in range(parnt.shape[1]):
             if specs[i] == parnt[0][j]:
                 abs[i] = parnt[1][j]
-                print(i)
 
         # if specs[i] == 'CO'
         #     iCO = i

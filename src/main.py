@@ -34,12 +34,11 @@ stckH = 0.3         ## sticking coefficient for H atoms
 ρ = 1.e+6
 T = 2500.
 
-δ = 1.      ## = RAD
-Av = 1.     ## straling van buiten
+δ = 1.      ## = RAD in fortran; outwards dilution
+Av = 1.     ## outwards dust extinction 
 
-r = 1.        ## geometrical dilution
-ΔAv = 1.      ## straling van binnen
-
+r = 1.        ## setting inwards geometrical dilution
+ΔAv = 1.      ## inwards dust extinction 
 
 
 timesteps = 1
