@@ -31,10 +31,16 @@ stckH = 0.3         ## sticking coefficient for H atoms
 
 
 ## input values physics
-ρ = 1e-6
+ρ = 1.e+6
 T = 2500.
-δ = 1.
-Av = 1.
+
+δ = 1.      ## = RAD
+Av = 1.     ## straling van buiten
+
+r = 1.        ## geometrical dilution
+ΔAv = 1.      ## straling van binnen
+
+
 
 timesteps = 1
 
