@@ -1,5 +1,5 @@
 from astropy import constants   as cst
-from astropy import units as units
+from astropy import units       as units
 import numpy as np
 
 
@@ -27,10 +27,10 @@ def density(Mdot,v, r):
     '''
     # r    = 1e18 #* unt.cgs.cm                       # cm
     Mdot = Mdot * Msunyr                            # gram/s
-    v    = v    * cms                               # cm/s
+    vexp = v    * cms                               # cm/s
 
 
-    dens = Mdot / (4*np.pi * v * r**2 * mu * mH)       # g/cm^3
+    dens = Mdot / (4*np.pi * vexp * r**2 * mu * mH)       # g/cm^3
 
     # dens = dens * g_to_kg * cm_to_m**(-3)           # kg/m^3
 

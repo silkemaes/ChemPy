@@ -3,7 +3,7 @@ Python code to calculate the reaction rates per reaction type:
 - Two-body reaction (Arrhenius law)
 - CP = direct cosmic ray ionisation
 - CR = cosmic ray-induced photoreaction
-- photodissociation
+- Photodissociation
 
 Written by Silke Maes, May 2023
 '''
@@ -14,7 +14,6 @@ from numba   import njit
 from pathlib import Path
 
 import sys
-sys.path.insert(1, '/lhome/silkem/ChemTorch/ChemTorch/rates/')
 
 
 ## Rate file handling
