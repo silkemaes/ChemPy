@@ -22,8 +22,8 @@ sys.path.insert(1, '/lhome/silkem/ChemTorch/ChemTorch/rates/')
 reaction_type = {'AD'  : 'AD (associative detachment)',
                  'CD'  : 'CD (collisional dissociation)',
                  'CE'  : 'CE (charge exchange)',
-                 'CP'  : 'CP = CRP(cosmic-ray proton)',
-                 'CR'  : 'CR = CRPHOT(cosmic-ray photon)',
+                 'CP'  : 'CP = CRP (cosmic-ray proton)',
+                 'CR'  : 'CR = CRPHOT (cosmic-ray photon)',
                  'DR'  : 'DR (dissociative recombination)',
                  'IN'  : 'IN (ion-neutral)',
                  'MN'  : 'MN (mutual neutralisation)',
@@ -49,13 +49,11 @@ alb = 1./(1.-w)
 
 def read_rate_file():
     '''
-    Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \\
+    Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \ 
     (McElroy et al., 2013, M. VdS' papers)
     '''
 
     loc = (Path(__file__).parent / '../rates/rate16_IP_2330K_AP_6000K.rates').resolve()
-
-    # loc = '../rates/rate16_IP_2330K_AP_6000K.rates'
 
     rates = dict()
     with open(loc, 'r') as f:
@@ -79,7 +77,7 @@ def read_rate_file():
 
 def read_specs_file(chemtype):
     '''
-    Read species file (Rate12, UMIST database)\\
+    Read species file (Rate12, UMIST database) \ 
     (McElroy et al., 2013)
     '''
     loc = (Path(__file__).parent / f'../rates/rate16_IP_6000K_{chemtype}rich_mean_Htot.specs').resolve()
@@ -94,11 +92,19 @@ def read_specs_file(chemtype):
 
 
 ## Setting initial abundances
-'''
-    # todo
-    FOUT!! pas aan
-'''
 def initialise_abs(chemtype):
+    '''
+    This function sets the initial abundance of the species: 
+
+    INPUT:
+        chemtype = chemistry type: 'C' of 'O'
+
+    RETURN:
+        - abs       = abundances of non-conserved species 
+        - abs_consv = abundances of conserved species 
+        - specs     = array with species names 
+        (The order of specs corresponds to the order of abs)
+    '''
     specs, parnt, consv = read_specs_file(chemtype)
 
     ## Initial abundances of the non-conserved species
@@ -116,14 +122,20 @@ def initialise_abs(chemtype):
     abs_consv = np.zeros(len(consv)+1)
     abs_consv[2] = 0.5
 
-    return abs, abs_consv
+    return abs, abs_consv, specs
 
 
 ## Calculating the reaction rates
 
 def calculate_rates(T, δ, Av):
+    '''
+    Calculate the reaction rate for all reactions.
 
-    rates,type, α, β, γ = read_rate_file()
+    First read in reaction rate file, from this, depending on the reaction type, \ 
+    the correct reaction rate is calculated.
+    '''
+
+    rates, type, α, β, γ = read_rate_file()
 
     k = np.zeros(len(type))
 
@@ -147,63 +159,74 @@ def calculate_rates(T, δ, Av):
 
 ## Rate equations
 
-'''
-Arrhenius law for two-body reactions.
-Reaction-dependent parameters:
-    - α = speed/probability of reaction
-    - β = temperature dependence
-    - γ = energy barrier
-Physics dependent parameters:
-    - T = temperature
-
-For the following reaction types:
-    - 
-
-'''
 @njit
 def Arrhenius_rate(α, β, γ, T):
+    '''
+    Arrhenius law for two-body reactions.
+
+    Reaction-dependent parameters:
+        - α = speed/probability of reaction
+        - β = temperature dependence
+        - γ = energy barrier
+
+    Physics dependent parameters:
+        - T = temperature
+
+    Constants:
+        - frac = 1/300
+    '''
     k = α*(T*frac)**β*np.exp(-γ/T)
     return k
 
-'''
-Direct cosmic ray ionisation reaction rate, give by alpha.
 
-For the following reaction type: CP
-'''
 @njit
 def CP_rate(α):
+    '''
+    Direct cosmic ray ionisation reaction rate, give by alpha.
+
+    For the following reaction type: CP
+    '''
     k = α
     return k
 
-'''
-Cosmic ray-induced photoreaction rate.
-Reaction-dependent parameters:
-    - α = speed/probability of reaction
-    - β = temperature dependence
-    - γ 
-Physics dependent parameters:
-    - T = temperature
-    - w = dust-grain albedo
 
-For the following reaction type: CR
-'''
 @njit
 def CR_rate(α, β, γ, T):
+    '''
+    Cosmic ray-induced photoreaction rate.
+
+    Reaction-dependent parameters:
+        - α = speed/probability of reaction
+        - β = temperature dependence
+        - γ 
+        
+    Physics dependent parameters:
+        - T = temperature
+        - w = dust-grain albedo == 0.5
+
+    Constants:
+        - frac = 1/300
+        - alb = 1./(1.-w)
+
+    For the following reaction type: CR
+    '''
     k = α * (T*frac)**β * (γ)*alb
     return k
 
-'''
-Photodissociation reaction rate.
-    - α = speed/probability of reaction
-    - γ
-Physical parameters:
-    - δ = overall dilution of the radiation field
-    - Av = species-specific extinction (connected to optical depth)
 
-For the following reaction type: PH
-'''
 @njit
 def photodissociation_rate(α, γ, δ, Av):
+    '''
+    For the following reaction type: PH
+
+    Photodissociation reaction rate:
+        - α = speed/probability of reaction
+        - γ
+
+    Physical parameters (input model):
+        - δ = outward dilution of the radiation field
+        - Av = species-specific extinction (connected to optical depth)
+    '''
     k = α * δ * np.exp(-γ * Av)
     return k
 
