@@ -7,18 +7,21 @@ The content of this function is translated from Fortran 77.
 Written by Silke Maes, April 2023.
 Original Fortran code by rate10odecsT.pl on Sun, Jul 21 2019, 
 using ratefile: rate16_IP_2330K_AP_6000K.rates, from http://udfa.ajmarkwick.net/index.php. 
-
-------
-
-Y     = number density of the non-conserved species
-YDOT  = change in number density of the conserved species
-X     = number density of the conserved species during calculation
-K     = reaction rates, calculated in xxx
-ACCR  = H accretion onto dust, calculated in main.py from input physics
-TOTAL = initial number density of conserved species
-HNR   = input density (ρ)
 '''
+
+
 def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
+	'''
+	Calculate the ODEs.
+
+	Y     = number density of the non-conserved species                      == n \ 
+	YDOT  = change in number density of the conserved species                == ndot \ 
+	X     = number density of the conserved species during calculation       == nconsvdot \ 
+	K     = reaction rates, calculated in rates.py                           == k \ 
+	ACCR  = H accretion onto dust, calculated in main.py from input physics  == Haccr \ 
+	TOTAL = initial number density of conserved species                      == nconsv \ 
+	HNR   = input density                                                    == ρ
+	'''
 
 	## Conserved species
 
