@@ -76,17 +76,30 @@ def read_rate_file():
 
 def read_specs_file(chemtype):
     '''
-    Read species file (Rate12, UMIST database) \ 
-    (McElroy et al., 2013)
+    Read species file (Rate12, UMIST database) \n 
+    (McElroy et al., 2013)\n
+    "dc.specs" from dc-fortran code
     '''
-    loc = (Path(__file__).parent / f'../rates/rate16_IP_6000K_{chemtype}rich_mean_Htot.specs').resolve()
+    loc_specs = (Path(__file__).parent / f'../rates/dc.specs').resolve()
+    loc_parnt = (Path(__file__).parent / f'../rates/{chemtype}.parents').resolve()
     # loc = '../rates/rate16_IP_6000K_'+chemtype+'rich_mean_Htot.specs'
 
-    specs = np.loadtxt(loc, skiprows=1,   max_rows=466, usecols=(1), dtype=str)     ## Y in fortran77 code
-    consv = np.loadtxt(loc, skiprows=468, max_rows=2  , usecols=(1), dtype=str)     ## X in fortran77 code
-    parnt = np.loadtxt(loc, skiprows=471   , usecols= (0,1), dtype=str)
+    idxs        = np.loadtxt(loc_specs, usecols=(0), dtype=int)     
+    specs_all   = np.loadtxt(loc_specs, usecols=(1), dtype=str)  ## Y in fortran77 code
+
+    specs = list()
+    convs = list()
+    for i in range(len(idxs)):
+        idx = idxs[i]
+        if idx == 0:
+            convs.append(specs_all[i])
+        else:
+            specs.append(specs_all[i])
+
+    parnt = np.loadtxt(loc_parnt, skiprows=0   , usecols= (0,1), dtype=str)
     
-    return specs, parnt.T, consv
+    return np.array(specs), parnt.T, np.array(convs)
+    
 
 
 
