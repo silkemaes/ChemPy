@@ -23,15 +23,17 @@ timesteps = 1
 ## calculate H accretion on dust
 Haccr = stckH *np.pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(np.pi*mH))**0.5
 
-n, nconsv, specs = rates.initialise_abs(chemtype)     # n_consv = TOTAL in fortran code
+## set initial conditions
+n, nconsv_tot, specs = rates.initialise_abs(chemtype)     # nconsv_tot = TOTAL in fortran code
+timesteps = 1
 
 ndot        = np.zeros(len(n))
-nconsvdot   = np.zeros(len(nconsv)) ## X in fortran
+nconsv      = np.zeros(len(nconsv_tot))
 t           = np.zeros(timesteps)
 
 k = rates.calculate_rates(T, δ, Av)
 
-ndot = odes.ODE(t, n, ndot, nconsvdot, nconsv,k, ρ, Haccr)
+ndot = odes.ODE(t, n, ndot, nconsv, nconsv_tot,k, ρ, Haccr)
 
 
 

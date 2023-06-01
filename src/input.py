@@ -53,8 +53,8 @@ def setinput():
     ρ = density(1.e-7, 10., 1.e15)
     # ρ = 1.e+6
     T = 2500.
-    δ = 1.      
-    Av = 1.   
+    δ = 1.e-5      
+    Av = 0.5   
 
     ## input chemistry
     chemtype = 'O'
