@@ -54,10 +54,10 @@ def setinput():
     # ρ = 1.e+6
     T = 2500.
     δ = 1.      
-    Av = 0.5   
+    Av = 1.   
 
     ## input chemistry
-    chemtype = 'C'
+    chemtype = 'O'
 
     r = 1.        ## setting inwards geometrical dilution
     ΔAv = 1.      ## inwards dust extinction 
