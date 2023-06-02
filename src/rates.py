@@ -46,13 +46,13 @@ alb = 1./(1.-w)
 ## Reading rate & species file
 
 
-def read_rate_file():
+def read_rate_file(rate):
     '''
     Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \ 
     (McElroy et al., 2013, M. VdS' papers)
     '''
 
-    loc = (Path(__file__).parent / '../rates/rate16_IP_2330K_AP_6000K.rates').resolve()
+    loc = (Path(__file__).parent / '../rates/rate{rate}.rates').resolve()
 
     rates = dict()
     with open(loc, 'r') as f:
@@ -74,24 +74,37 @@ def read_rate_file():
     return rates, type, α, β, γ
 
 
-def read_specs_file(chemtype):
+def read_specs_file(chemtype, rate):
     '''
-    Read species file (Rate12, UMIST database) \ 
-    (McElroy et al., 2013)
-    '''
-    loc = (Path(__file__).parent / f'../rates/rate16_IP_6000K_{chemtype}rich_mean_Htot.specs').resolve()
-    # loc = '../rates/rate16_IP_6000K_'+chemtype+'rich_mean_Htot.specs'
-
-    specs = np.loadtxt(loc, skiprows=1,   max_rows=466, usecols=(1), dtype=str)     ## Y in fortran77 code
-    consv = np.loadtxt(loc, skiprows=468, max_rows=2  , usecols=(1), dtype=str)     ## X in fortran77 code
-    parnt = np.loadtxt(loc, skiprows=471   , usecols= (0,1), dtype=str)
+    Read species file (Rate12, UMIST database) \n 
+    (McElroy et al., 2013)\n
+    '''   
     
-    return specs, parnt.T, consv
+    loc_parnt = (Path(__file__).parent / f'../rates/{chemtype}.parents').resolve()
+    loc_specs = (Path(__file__).parent / f'../rates/rate{rate}.specs').resolve()
+    
+    idxs        = np.loadtxt(loc_specs, usecols=(0), dtype=int, skiprows = 1)     
+    specs_all   = np.loadtxt(loc_specs, usecols=(1), dtype=str, skiprows = 1)  ## Y in fortran77 code
+
+    specs = list()
+    convs = list()
+    for i in range(len(idxs)):
+        idx = idxs[i]
+        if idx == 0:
+            convs.append(specs_all[i])
+            # print('consv', i, idx, specs_all[i])
+        else:
+            specs.append(specs_all[i])
+            # print('non-consv', i, idx, specs_all[i])
+
+    parnt = np.loadtxt(loc_parnt, skiprows=0   , usecols= (0,1), dtype=str)
+    
+    return np.array(specs), parnt.T, np.array(convs)
 
 
 
 ## Setting initial abundances
-def initialise_abs(chemtype):
+def initialise_abs(chemtype, rate):
     '''
     This function sets the initial abundance of the species: 
 
@@ -104,7 +117,7 @@ def initialise_abs(chemtype):
         - specs     = array with species names 
         (The order of specs corresponds to the order of abs)
     '''
-    specs, parnt, consv = read_specs_file(chemtype)
+    specs, parnt, consv = read_specs_file(chemtype, rate)
 
     ## Initial abundances of the non-conserved species
     abs = np.zeros(len(specs),dtype=np.float64)
@@ -126,7 +139,7 @@ def initialise_abs(chemtype):
 
 ## Calculating the reaction rates
 
-def calculate_rates(T, δ, Av):
+def calculate_rates(T, δ, Av, rate):
     '''
     Calculate the reaction rate for all reactions.
 
@@ -134,7 +147,7 @@ def calculate_rates(T, δ, Av):
     the correct reaction rate is calculated.
     '''
 
-    rates, type, α, β, γ = read_rate_file()
+    rates, type, α, β, γ = read_rate_file(rate)
 
     k = np.zeros(len(type))
 

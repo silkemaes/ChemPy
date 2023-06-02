@@ -56,22 +56,28 @@ def setinput():
     δ = 1.e-5      
     Av = 0.5   
 
-    ## input chemistry
-    chemtype = 'O'
-
     r = 1.        ## setting inwards geometrical dilution
     ΔAv = 1.      ## inwards dust extinction 
 
-    print('Input:')
-    print('------')
-    print('ρ  =','{:.2E}'.format(ρ))
-    print('T  =',T)
-    print('δ  =',δ)
-    print('Av =',Av)
-    print('')
-    print('Chem type =', chemtype)
+    ## input chemistry
+    chemtype = 'O'
 
-    return ρ, T, δ, Av, chemtype
+    ## choose rate-file
+    rate = 13
+
+    print('-----------------------')
+    print('| Input:')
+    print('|    ')
+    print('|    ρ  =','{:.2E}'.format(ρ))
+    print('|    T  =',T)
+    print('|    δ  =',δ)
+    print('|    Av =',Av)
+    print('|    Chem type =', chemtype)
+    print('|    Rate      =', rate)
+    print('-----------------------')
+    print('')
+
+    return ρ, T, δ, Av, chemtype, str(rate)
 
 def getcst():
     '''
