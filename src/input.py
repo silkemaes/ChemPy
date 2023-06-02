@@ -62,14 +62,16 @@ def setinput():
     r = 1.        ## setting inwards geometrical dilution
     ΔAv = 1.      ## inwards dust extinction 
 
-    print('Input:')
-    print('------')
-    print('ρ  =','{:.2E}'.format(ρ))
-    print('T  =',T)
-    print('δ  =',δ)
-    print('Av =',Av)
+    print('-----------------------')
+    print('| Input:')
+    print('|    ')
+    print('|    ρ  =','{:.2E}'.format(ρ))
+    print('|    T  =',T)
+    print('|    δ  =',δ)
+    print('|    Av =',Av)
+    print('|    Chem type =', chemtype)
+    print('-----------------------')
     print('')
-    print('Chem type =', chemtype)
 
     return ρ, T, δ, Av, chemtype
 

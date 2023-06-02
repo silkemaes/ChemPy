@@ -48,11 +48,12 @@ alb = 1./(1.-w)
 
 def read_rate_file():
     '''
-    Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \ 
-    (McElroy et al., 2013, M. VdS' papers)
+    Read rates file (Rate12, UMIST database) \n
+    (McElroy et al., 2013) \n
+    dc-fortran code
     '''
 
-    loc = (Path(__file__).parent / '../rates/rate16_IP_2330K_AP_6000K.rates').resolve()
+    loc = (Path(__file__).parent / '../rates/rate13.rates').resolve()
 
     rates = dict()
     with open(loc, 'r') as f:
