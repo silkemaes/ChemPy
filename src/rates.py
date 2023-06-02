@@ -131,8 +131,8 @@ def initialise_abs(chemtype):
         #     iCO = i
 
     ## Initialise abundances of the conserved species
-    abs_consv = np.zeros(len(consv)+1)
-    abs_consv[2] = 0.5
+    abs_consv = np.zeros(len(consv))
+    abs_consv[1] = 0.5
 
     return abs, abs_consv, specs
 
