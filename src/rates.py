@@ -94,8 +94,10 @@ def read_specs_file(chemtype):
         idx = idxs[i]
         if idx == 0:
             convs.append(specs_all[i])
+            # print('consv', i, idx, specs_all[i])
         else:
             specs.append(specs_all[i])
+            # print('non-consv', i, idx, specs_all[i])
 
     parnt = np.loadtxt(loc_parnt, skiprows=0   , usecols= (0,1), dtype=str)
     

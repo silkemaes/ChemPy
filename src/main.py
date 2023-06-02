@@ -36,6 +36,10 @@ k = rates.calculate_rates(T, δ, Av)
 ndot = odes.ODE(t, n, ndot, nconsv, nconsv_tot,k, ρ, Haccr)
 
 
+# for i in range(len(specs)):
+#     print(i+1, specs[i])
+
+
 
 
 
