@@ -27,6 +27,13 @@ Haccr = stckH *np.pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(np.pi*mH))**0.5
 n, nconsv_tot, specs = rates.initialise_abs(chemtype)     # nconsv_tot = TOTAL in fortran code
 timesteps = 1
 
+print('\n')
+for i in range(len(n)):
+    if n[i] != 0:
+        print(specs[i], n[i])
+# print(n, nconsv_tot)
+
+
 ndot        = np.zeros(len(n))
 nconsv      = np.zeros(len(nconsv_tot))
 t           = np.zeros(timesteps)
