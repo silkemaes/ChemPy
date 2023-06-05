@@ -52,7 +52,7 @@ def read_rate_file(rate):
     (McElroy et al., 2013, M. VdS' papers)
     '''
 
-    loc = (Path(__file__).parent / '../rates/rate{rate}.rates').resolve()
+    loc = (Path(__file__).parent / f'../rates/rate{rate}.rates').resolve()
 
     rates = dict()
     with open(loc, 'r') as f:

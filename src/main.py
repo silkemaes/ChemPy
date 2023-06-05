@@ -4,7 +4,6 @@ import sys
 
 ##import own scripts
 import rates        as rates
-import ode.acodes   as odes
 import input    as input
 
 
@@ -17,6 +16,11 @@ kB, mH, rGr, nGr, stckH, AUV_AV = input.getcst()
 
 ## input
 ρ, T, δ, Av, chemtype, rate = input.setinput()
+
+if rate == '13':
+    import ode.dcodes   as odes
+if rate == '16':
+    import ode.acodes   as odes
 
 timesteps = 1
 
