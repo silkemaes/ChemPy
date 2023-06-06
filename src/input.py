@@ -62,7 +62,7 @@ def setinput():
     ## input chemistry
     chemtype = 'O'
 
-    ## choose rate-file
+    ## choose rate-file 13, 16
     rate = 16
 
     print('-----------------------')

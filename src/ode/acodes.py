@@ -23,6 +23,8 @@ def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	HNR   = input density                                                    == ρ
 	'''
 
+	Y = np.abs(Y)
+
 	## Conserved species
 
 	## e-
