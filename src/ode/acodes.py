@@ -1,4 +1,5 @@
 import numpy as np
+from numba   import njit
 
 '''
 IMPORTANT NOTE:
@@ -9,7 +10,7 @@ Original Fortran code by rate10odecsT.pl on Sun, Jul 21 2019,
 using ratefile: rate16_IP_2330K_AP_6000K.rates, from http://udfa.ajmarkwick.net/index.php. 
 '''
 
-
+# @njit
 def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	'''
 	Calculate the ODEs.
@@ -22,8 +23,10 @@ def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	TOTAL = initial number density of conserved species                      == nconsv \ 
 	HNR   = input density                                                    == ρ
 	'''
-
+	
+	
 	Y = np.abs(Y)
+
 
 	## Conserved species
 
