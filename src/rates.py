@@ -243,4 +243,30 @@ def photodissociation_rate(α, γ, δ, Av):
     return k
 
 
+
+def read_COshielding(loc):
+    '''
+    Read CO photodissociation shielding rate from table (Visser et al. 2009)
+    '''
+    shielding = np.loadtxt(loc, skiprows=9, dtype=np.float64)
+    leg = './shielding/CO/legend.txt'
+
+    CO = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (0))
+    H2 = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (1), max_rows=shielding.shape[0])
+
+    return shielding, CO, H2
+
+
+def retrieve_COshielding(N_CO, N_H2, shielding, CO, H2):
+    '''
+    Retrieve appropriate CO shielding rate
+    '''
+    idx, = np.where(CO ==  N_CO)
+    idx_CO = idx[0]
+    idx, = np.where(H2 ==  N_H2)
+    idx_H2 = idx[0]
+    
+    shieldrate = shielding[idx_H2, idx_CO]
+
+    return shieldrate
     
