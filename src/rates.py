@@ -192,13 +192,13 @@ def Arrhenius_rate(α, β, γ, T):
 
 
 @njit
-def CP_rate(α, δ):
+def CP_rate(α):
     '''
     Direct cosmic ray ionisation reaction rate, give by alpha.
 
     For the following reaction type: CP
     '''
-    k = α * δ
+    k = α
     return k
 
 
