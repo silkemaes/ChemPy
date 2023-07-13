@@ -152,6 +152,8 @@ def calculate_rates(T, δ, Av, rate):
     k = np.zeros(len(type))
 
     for i in range(len(type)):
+
+
         if type[i] == 'CP':
             k[i] = CP_rate(α[i]) 
         elif type[i] == 'CR':
@@ -302,26 +304,3 @@ def find_closest(list, x, spec):
             return int(idx)
         
 
-def retrieve_rate(n_i, Av, shielding, spec, H2, spectype):
-    '''
-    Retrieve the shielding rate, corresponding best to the current modelling input parameters. \n
-    Input: \n
-        - n_i       = initial abundance of the specific species (CO or N2)\n
-        - Av        = input Av \n
-        - shielding = shielding table in 2D-np.array \n
-        - spec      = list with column densities from species \n
-        - H2        = list with column densities from H2
-    '''
-
-    ## Calculate the target number density to determine the shielding rate.
-    N_H2 = Av * 1.87e21
-    N = N_H2 * n_i 
-    
-    ## Find best match for the input column densities.
-    idx_CO = find_closest(spec, N, spectype)
-    idx_H2 = find_closest(H2, N_H2, spectype)
-
-    ## Get the corresponding shielding rate from the table.    
-    shieldrate = shielding[idx_H2, idx_CO]
-
-    return shieldrate
