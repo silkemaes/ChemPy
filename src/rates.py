@@ -127,14 +127,18 @@ def initialise_abs(chemtype, rate):
             if specs[i] == parnt[0][j]:
                 abs[i] = parnt[1][j]
 
-        # if specs[i] == 'CO'
-        #     iCO = i
+        ## store initial abundances from CO and N2, because this is needed to determine the shieldingrate
+        nshield_i = dict()
+        if specs[i] == 'CO':
+            nshield_i['CO'] = abs[i]
+        elif specs[i] == 'N2':
+            nshield_i['N2'] = abs[i]
 
     ## Initialise abundances of the conserved species
     abs_consv = np.zeros(len(consv))
     abs_consv[1] = 0.5                  ## H2
 
-    return abs, abs_consv, specs
+    return abs, abs_consv, specs, nshield_i
 
 
 ## Calculating the reaction rates
