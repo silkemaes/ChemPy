@@ -243,30 +243,85 @@ def photodissociation_rate(α, γ, δ, Av):
     return k
 
 
+## retrieve shielding rate, given N_CO & N_H2
 
-def read_COshielding(loc):
+def read_shielding(loc, spec):
     '''
-    Read CO photodissociation shielding rate from table (Visser et al. 2009)
+    Read in shielding rates from tables.
     '''
     shielding = np.loadtxt(loc, skiprows=9, dtype=np.float64)
-    leg = './shielding/CO/legend.txt'
+    leg = './shielding/'+spec+'/legend.txt'
 
-    CO = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (0))
+    spec = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (0))
     H2 = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (1), max_rows=shielding.shape[0])
 
-    return shielding, CO, H2
+    return shielding, spec, H2
 
 
-def retrieve_COshielding(N_CO, N_H2, shielding, CO, H2):
+def find_closest(list, x, spec):
     '''
-    Retrieve appropriate CO shielding rate
+    Find index of list for the value closest to x. \n
+    This function is specific for a loglinear 'list', \n with the first element (index 0) diverging from this relation.
     '''
-    idx, = np.where(CO ==  N_CO)
-    idx_CO = idx[0]
-    idx, = np.where(H2 ==  N_H2)
-    idx_H2 = idx[0]
+
+    ## Consider log space.
+    list = np.log10(list)
+    x    = np.log10(x)
+
+    if spec == 'CO':
+        ## Exeption if x is smaller than the first value.
+        if x < list[1]:
+            if x < list[1]/2:
+                return 0
+            else:
+                return 1
+        ## Exeption when x is larger than the last value.
+        elif x >= list[-1]:
+            return int(len(list)-1)
+        ## All values in between.
+        else:
+            list = list[1:]
+            min = np.min((list))
+            max = np.max((list))
+
+            idx = np.round((x-min)*(max-min)**(-1)*(len(list)-1))
+
+            return int(idx+1)
     
+    elif spec == 'N2':
+        ## Exeption when x is larger than the last value.
+        if x >= list[-1]:
+            return int(len(list)-1)
+        ## All values in between.
+        else:
+            min = np.min((list))
+            max = np.max((list))
+
+            idx = np.round((x-min)*(max-min)**(-1)*(len(list)-1))
+
+            return int(idx)
+        
+
+def retrieve_rate(n_i, Av, shielding, spec, H2, spectype):
+    '''
+    Retrieve the shielding rate, corresponding best to the current modelling input parameters. \n
+    Input: \n
+        - n_i       = initial abundance of the specific species (CO or N2)\n
+        - Av        = input Av \n
+        - shielding = shielding table in 2D-np.array \n
+        - spec      = list with column densities from species \n
+        - H2        = list with column densities from H2
+    '''
+
+    ## Calculate the target number density to determine the shielding rate.
+    N_H2 = Av * 1.87e21
+    N = N_H2 * n_i 
+    
+    ## Find best match for the input column densities.
+    idx_CO = find_closest(spec, N, spectype)
+    idx_H2 = find_closest(H2, N_H2, spectype)
+
+    ## Get the corresponding shielding rate from the table.    
     shieldrate = shielding[idx_H2, idx_CO]
 
     return shieldrate
-    

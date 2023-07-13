@@ -54,7 +54,7 @@ def setinput():
     # ρ = 1.e+6
     T = 2500.
     δ = 1.e-5      
-    Av = 0.5   
+    Av = 0.05   
 
     r = 1.        ## setting inwards geometrical dilution
     ΔAv = 1.      ## inwards dust extinction 
