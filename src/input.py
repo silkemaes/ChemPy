@@ -50,14 +50,20 @@ def setinput():
     '''
 
     ## input physics
-    ρ = density(1.e-7, 10., 1.e15)
+    Mdot = 1.e-7
+    vexp = 10.
+    ρ = density(Mdot, vexp, 1.e15)
     # ρ = 1.e+6
     T = 2500.
     δ = 1.e-5      
-    Av = 0.05   
+    Av = 0.05  
 
     r = 1.        ## setting inwards geometrical dilution
-    ΔAv = 1.      ## inwards dust extinction 
+    ΔAv = 1.      ## inwards dust extinction  
+
+    ## Temporary for testing the shielding
+    C13C12 = 35
+
 
     ## input chemistry
     chemtype = 'O'
@@ -77,7 +83,7 @@ def setinput():
     print('-----------------------')
     print('')
 
-    return ρ, T, δ, Av, chemtype, str(rate)
+    return ρ, T, δ, Av, chemtype, str(rate), vexp, C13C12
 
 def getcst():
     '''

@@ -3,7 +3,7 @@ Python code to calculate the reaction rates per reaction type:
 - Two-body reaction (Arrhenius law)
 - CP = direct cosmic ray ionisation
 - CR = cosmic ray-induced photoreaction
-- Photodissociation
+- PH = Photodissociation
 
 Written by Silke Maes, May 2023
 '''
@@ -13,27 +13,27 @@ from numba   import njit
 
 from pathlib import Path
 
-import sys
+import shielding as shield
 
 
 ## Rate file handling
 
-reaction_type = {'AD'  : 'AD (associative detachment)',
-                 'CD'  : 'CD (collisional dissociation)',
-                 'CE'  : 'CE (charge exchange)',
-                 'CP'  : 'CP = CRP (cosmic-ray proton)',
-                 'CR'  : 'CR = CRPHOT (cosmic-ray photon)',
-                 'DR'  : 'DR (dissociative recombination)',
-                 'IN'  : 'IN (ion-neutral)',
-                 'MN'  : 'MN (mutual neutralisation)',
-                 'NN'  : 'NN (neutral-neutral)',
-                 'PH'  : 'PH (photoprocess)',
-                 'RA'  : 'RA (radiative association)',
-                 'REA' : 'REA (radiative electron attachement)',
-                 'RR'  : 'RR (radiative rec ombination)',
-                 'IP'  : 'IP (internal photon)',
-                 'AP'  : 'AP (accompaning photon)'
-}
+# reaction_type = {'AD'  : 'AD (associative detachment)',
+#                  'CD'  : 'CD (collisional dissociation)',
+#                  'CE'  : 'CE (charge exchange)',
+#                  'CP'  : 'CP = CRP (cosmic-ray proton)',
+#                  'CR'  : 'CR = CRPHOT (cosmic-ray photon)',
+#                  'DR'  : 'DR (dissociative recombination)',
+#                  'IN'  : 'IN (ion-neutral)',
+#                  'MN'  : 'MN (mutual neutralisation)',
+#                  'NN'  : 'NN (neutral-neutral)',
+#                  'PH'  : 'PH (photoprocess)',
+#                  'RA'  : 'RA (radiative association)',
+#                  'REA' : 'REA (radiative electron attachement)',
+#                  'RR'  : 'RR (radiative rec ombination)',
+#                  'IP'  : 'IP (internal photon)',
+#                  'AP'  : 'AP (accompaning photon)'
+# }
 
 
 
@@ -92,10 +92,8 @@ def read_specs_file(chemtype, rate):
         idx = idxs[i]
         if idx == 0:
             convs.append(specs_all[i])
-            # print('consv', i, idx, specs_all[i])
         else:
             specs.append(specs_all[i])
-            # print('non-consv', i, idx, specs_all[i])
 
     parnt = np.loadtxt(loc_parnt, skiprows=0   , usecols= (0,1), dtype=str)
     
@@ -122,13 +120,13 @@ def initialise_abs(chemtype, rate):
     ## Initial abundances of the non-conserved species
     abs = np.zeros(len(specs),dtype=np.float64)
 
+    nshield_i = dict()
     for i in range(len(specs)):
         for j in range(parnt.shape[1]):
             if specs[i] == parnt[0][j]:
                 abs[i] = parnt[1][j]
 
         ## store initial abundances from CO and N2, because this is needed to determine the shieldingrate
-        nshield_i = dict()
         if specs[i] == 'CO':
             nshield_i['CO'] = abs[i]
         elif specs[i] == 'N2':
@@ -143,7 +141,7 @@ def initialise_abs(chemtype, rate):
 
 ## Calculating the reaction rates
 
-def calculate_rates(T, δ, Av, rate):
+def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
     '''
     Calculate the reaction rate for all reactions.
 
@@ -156,14 +154,19 @@ def calculate_rates(T, δ, Av, rate):
     k = np.zeros(len(type))
 
     for i in range(len(type)):
-
-
         if type[i] == 'CP':
             k[i] = CP_rate(α[i]) 
         elif type[i] == 'CR':
             k[i] = CR_rate(α[i], β[i], γ[i], T)
         elif type[i] == 'PH':
-            k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
+            if rates[i+1][1] == 'CO':
+                COshieldrate = shield.retrieve_rate(nshield_i, Av, T, v, C13C12, 'CO')
+                k[i] = COshieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
+            elif rates[i+1][1] == 'N2':
+                N2shieldrate = shield.retrieve_rate(nshield_i, Av, T, v, None, 'N2')
+                k[i] = N2shieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
+            else:
+                k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
         elif type[i] == 'IP':
             k[i] = 0
         elif type[i] == 'AP':
@@ -249,62 +252,9 @@ def photodissociation_rate(α, γ, δ, Av):
     return k
 
 
-## retrieve shielding rate, given N_CO & N_H2
-
-def read_shielding(loc, spec):
-    '''
-    Read in shielding rates from tables.
-    '''
-    shielding = np.loadtxt(loc, skiprows=9, dtype=np.float64)
-    leg = './shielding/'+spec+'/legend.txt'
-
-    spec = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (0))
-    H2 = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (1), max_rows=shielding.shape[0])
-
-    return shielding, spec, H2
 
 
-def find_closest(list, x, spec):
-    '''
-    Find index of list for the value closest to x. \n
-    This function is specific for a loglinear 'list', \n with the first element (index 0) diverging from this relation.
-    '''
 
-    ## Consider log space.
-    list = np.log10(list)
-    x    = np.log10(x)
 
-    if spec == 'CO':
-        ## Exeption if x is smaller than the first value.
-        if x < list[1]:
-            if x < list[1]/2:
-                return 0
-            else:
-                return 1
-        ## Exeption when x is larger than the last value.
-        elif x >= list[-1]:
-            return int(len(list)-1)
-        ## All values in between.
-        else:
-            list = list[1:]
-            min = np.min((list))
-            max = np.max((list))
 
-            idx = np.round((x-min)*(max-min)**(-1)*(len(list)-1))
-
-            return int(idx+1)
-    
-    elif spec == 'N2':
-        ## Exeption when x is larger than the last value.
-        if x >= list[-1]:
-            return int(len(list)-1)
-        ## All values in between.
-        else:
-            min = np.min((list))
-            max = np.max((list))
-
-            idx = np.round((x-min)*(max-min)**(-1)*(len(list)-1))
-
-            return int(idx)
         
-
