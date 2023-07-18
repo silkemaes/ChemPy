@@ -98,8 +98,8 @@ def getcst():
     ## Grain parameters for H2 formation and cosmic ray ionisation
     rGr = 1.0E-5        ## grain radius [cm] (A_G in fortran77 code)
     nGr = 1.5e-12       ## grain number density/H2 (assuming gas/dust = 200, rho = 3.5 g/cm^3) (X_G in fortran77 code)
-    γ_CO = 3.           ## (GAMCO in fortran77)
-    AUV_AV = 4.65
+    # γ_CO = 3.           ## (GAMCO in fortran77)
+    # AUV_AV = 4.65
     stckH = 0.3         ## sticking coefficient for H atoms
 
-    return kB, mH, rGr, nGr, stckH, AUV_AV
+    return kB, mH, rGr, nGr, stckH

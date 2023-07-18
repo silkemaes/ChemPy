@@ -13,8 +13,8 @@ from numba   import njit
 
 from pathlib import Path
 
+# import shielding as shield
 import shielding as shield
-
 
 ## Rate file handling
 
@@ -160,7 +160,7 @@ def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
             k[i] = CR_rate(α[i], β[i], γ[i], T)
         elif type[i] == 'PH':
             if rates[i+1][1] == 'CO':
-                COshieldrate = shield.retrieve_rate(nshield_i, Av, T, v, C13C12, 'CO')
+                COshieldrate = shield.retrieve_rate(nshield_i, Av, T, v, C13C12, 'CO')                
                 k[i] = COshieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
             elif rates[i+1][1] == 'N2':
                 N2shieldrate = shield.retrieve_rate(nshield_i, Av, T, v, None, 'N2')

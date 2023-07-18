@@ -11,7 +11,7 @@ print('------------------ START:', dt.datetime.now(),'---------------------')
 print('')
 
 
-kB, mH, rGr, nGr, stckH, AUV_AV = input.getcst()
+kB, mH, rGr, nGr, stckH = input.getcst()
 
 
 ## input
@@ -39,6 +39,9 @@ t           = np.zeros(timesteps)
 
 k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
 
+ndot = odes.ODE(t, n, ndot, nconsv, nconsv_tot,k, ρ, Haccr)
+
+## Logging the runs of main.py
 filename = 'log'
 loc = (Path(__file__).parent / f'../{filename}.txt').resolve()
 extra_message = ''
@@ -56,11 +59,6 @@ with open(loc, 'a') as f:
     f.write('Info:\n')
     f.write('   '+extra_message+'\n')
     f.write('\n--------------------------------\n')
-
-
-
-ndot = odes.ODE(t, n, ndot, nconsv, nconsv_tot,k, ρ, Haccr)
-
 
 
 
