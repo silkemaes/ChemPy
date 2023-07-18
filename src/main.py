@@ -41,12 +41,13 @@ k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
 
 filename = 'log'
 loc = (Path(__file__).parent / f'../{filename}.txt').resolve()
-extra_message = 'Testing shielding.'
+extra_message = ''
 
 with open(loc, 'a') as f:
     f.write('\nDate: '+str(dt.datetime.now())+'\n\n')
     f.write('Input:\n\n')
     f.write('   ρ  = '+'{:.2E}'.format(ρ)+'\n')
+    f.write('   v  = '+str(v)+'\n')
     f.write('   T  = '+str(T)+'\n')
     f.write('   δ  = '+str(δ)+'\n')
     f.write('   Av = '+str(Av)+'\n')
