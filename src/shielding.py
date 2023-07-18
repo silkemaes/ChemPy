@@ -82,7 +82,6 @@ def retrieve_rate(n_i, Av, T, vexp, C13C12, spec):
         temp, N_H = get_shield_table(T, Av, spec)
         loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(N_H)
 
-    print(loc)
     shielding, lgd_spec, lgd_H2 = read_shielding((Path(__file__).parent / f'../{dir_shielding}{spec}/{loc}.dat').resolve(), spec)
 
     N_H2 = Av * 1.87e21

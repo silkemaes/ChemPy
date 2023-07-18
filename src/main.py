@@ -1,9 +1,9 @@
 import numpy                    as np
 import datetime                 as dt
-import sys
+from pathlib import Path
 
 ##import own scripts
-import rates        as rates
+import rates    as rates
 import input    as input
 
 
@@ -39,33 +39,26 @@ t           = np.zeros(timesteps)
 
 k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
 
-loc = '../rates/'
-filename = 'k-rate16'
+filename = 'log'
+loc = (Path(__file__).parent / f'../{filename}.txt').resolve()
+extra_message = 'Testing shielding.'
 
-with open(loc+filename+'.txt', 'w') as f:
-    f.write('-----------------------\n')
-    f.write('| Input:\n')
-    f.write('|    \n')
-    f.write('|    ρ  = '+'{:.2E}'.format(ρ)+'\n')
-    f.write('|    T  = '+str(T)+'\n')
-    f.write('|    δ  = '+str(δ)+'\n')
-    f.write('|    Av = '+str(Av)+'\n')
-    f.write('|    Chem type = '+chemtype+'\n')
-    f.write('|    Rate      = '+rate+'\n')
-    f.write('-----------------------\n')
-    f.write('\n\n')
-    f.write('Values of k\n')
-    f.write('-----------------------\n')
-    for i in range(len(k)):
-        f.write(str(i)+'  '+str(k[i])+'\n')
+with open(loc, 'a') as f:
+    f.write('\nDate: '+str(dt.datetime.now())+'\n\n')
+    f.write('Input:\n\n')
+    f.write('   ρ  = '+'{:.2E}'.format(ρ)+'\n')
+    f.write('   T  = '+str(T)+'\n')
+    f.write('   δ  = '+str(δ)+'\n')
+    f.write('   Av = '+str(Av)+'\n')
+    f.write('   Chem type = '+chemtype+'\n')
+    f.write('   Rate      = '+rate+'\n\n')
+    f.write('Info:\n')
+    f.write('   '+extra_message+'\n')
+    f.write('\n--------------------------------\n')
+
 
 
 ndot = odes.ODE(t, n, ndot, nconsv, nconsv_tot,k, ρ, Haccr)
-
-
-
-
-
 
 
 
