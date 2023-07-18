@@ -1,5 +1,5 @@
 # import numpy as np
-import torch
+import numpy as np
 
 '''
 IMPORTANT NOTE:
@@ -39,8 +39,8 @@ def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 
 	## Non-conserved species
 	HLOSS=-ACCR*Y[0]
-	F = torch.zeros(len(Y))
-	D = torch.zeros(len(Y))
+	F = np.zeros(len(Y))
+	D = np.zeros(len(Y))
 
 	## H
 	F[0]=0.+K[110]*Y[17]*Y[53]*HNR+K[128]*Y[28]*Y[53]*HNR+K[133]*X[1]*Y[11]*HNR+K[134]*X[1]*X[1]*HNR+K[134]*X[1]*X[1]*HNR+K[135]*X[1]*Y[36]*HNR+K[138]*X[1]*Y[34]*HNR+K[139]*X[1]*X[0]*HNR+K[139]*X[1]*X[0]*HNR+K[140]*Y[0]*Y[11]*HNR+K[140]*Y[0]*Y[11]*HNR+K[141]*Y[0]*X[1]*HNR+K[141]*Y[0]*X[1]*HNR+K[141]*Y[0]*X[1]*HNR+K[142]*Y[0]*Y[36]*HNR
