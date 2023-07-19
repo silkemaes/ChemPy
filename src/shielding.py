@@ -62,40 +62,11 @@ def find_closest_lin(list, x, spec):
             return int(idx)
         
 
-def retrieve_rate(n_i, Av, T, vexp, C13C12, spec):
-    '''
-    Retrieve the shielding rate, corresponding best to the current modelling input parameters. \n
-    Input: \n
-        - N         = target column density of the specific species (CO or N2)\n
-        - N_H2      = target column density of H2 \n
-        - shielding = shielding table in 2D-np.array \n
-        - spec      = list with column densities from specie \n
-        - H2        = list with column densities from H2
-    '''
-    
-    dir_shielding = 'shielding/'
-    v = select_shield_v(vexp)
-    if spec == 'CO':
-        temp = get_shield_table(T, Av, spec)
-        loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(C13C12)
-    if spec == 'N2':
-        temp, N_H = get_shield_table(T, Av, spec)
-        loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(N_H)
-
-    shielding, lgd_spec, lgd_H2 = read_shielding((Path(__file__).parent / f'../{dir_shielding}{spec}/{loc}.dat').resolve(), spec)
-
-    N_H2 = Av * 1.87e21
-    N = N_H2 * n_i[spec] 
-    
-    idx = find_closest_lin(lgd_spec, N, spec)
-    idx_H2 = find_closest_lin(lgd_H2, N_H2, spec)
-   
-    shieldrate = shielding[idx_H2, idx]
-
-    return shieldrate
-
 
 def get_shield_table(T, Av, spec):
+    '''
+    Function to select the best corresponding shielding table.
+    '''
     temp = select_shield_temp(T, spec)
 
     if spec == 'N2':
@@ -108,7 +79,7 @@ def get_shield_table(T, Av, spec):
 
 def select_shield_temp(T, spec):
     '''
-    Function to select the most appropriate temperature to select the sheilding table.
+    Function to select the best corresponding temperature to select the sheilding table.
     '''
     T_list_CO = np.array([5,20,50,100])
     T_list_N2 = np.array([10,30,50,100,1000])
@@ -125,7 +96,7 @@ def select_shield_temp(T, spec):
 
 def select_shield_NH(Av):
     '''
-    Function to select the most appropriate N_H (H column density) to select the sheilding table. \n
+    Function to select the best corresponding N_H (H column density) to select the sheilding table. \n
     Only in the case of N2 shielding.
     '''
     N_H2 = Av * 1.87e21
@@ -140,7 +111,7 @@ def select_shield_NH(Av):
 
 def select_shield_v(v):
     '''
-    Function to select the most appropriate v (velocity) to select the sheilding table. \n
+    Function to select the best corresponding v (velocity) to select the sheilding table. \n
     '''
     v_list = np.array([3,11])
 
@@ -161,3 +132,35 @@ def find_closest(list, target):
             idx = i+1
 
     return idx
+
+def retrieve_rate(n_i, Av, T, vexp, C13C12, spec):
+    '''
+    Retrieve the shielding rate, corresponding best to the current modelling input parameters. \n
+    Input: \n
+        - N         = target column density of the specific species (CO or N2)\n
+        - N_H2      = target column density of H2 \n
+        - shielding = shielding table in 2D-np.array \n
+        - spec      = list with column densities from specie \n
+        - H2        = list with column densities from H2
+    '''
+
+    dir_shielding = 'shielding/'
+    v = select_shield_v(vexp)
+    if spec == 'CO':
+        temp = get_shield_table(T, Av, spec)
+        loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(C13C12)
+    if spec == 'N2':
+        temp, N_H = get_shield_table(T, Av, spec)
+        loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(N_H)
+
+    shielding, lgd_spec, lgd_H2 = read_shielding((Path(__file__).parent / f'../{dir_shielding}{spec}/{loc}.dat').resolve(), spec)
+
+    N_H2 = Av * 1.87e21
+    N = N_H2 * n_i[spec] 
+
+    idx = find_closest_lin(lgd_spec, N, spec)
+    idx_H2 = find_closest_lin(lgd_H2, N_H2, spec)
+
+    shieldrate = shielding[idx_H2, idx]
+
+    return shieldrate

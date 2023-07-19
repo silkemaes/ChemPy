@@ -9,12 +9,11 @@ Written by Silke Maes, May 2023
 '''
 
 import numpy as np
+import shielding as shield
 from numba   import njit
 
 from pathlib import Path
 
-# import shielding as shield
-import shielding as shield
 
 ## Rate file handling
 
