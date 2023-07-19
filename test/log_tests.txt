@@ -1,0 +1,42 @@
+
+Date: 2023-07-19 13:45:47.436531
+
+Input:
+
+   ρ  = 3.76E+05
+   v  = 3
+   T  = 2000
+   δ  = 1
+   Av = 0.05
+
+Date: 2023-07-19 13:46:08.331857
+
+Input:
+
+   ρ  = 3.76E+05
+   v  = 3
+   T  = 2000
+   δ  = 1
+   Av = 0.05
+   13C/12C   = 35
+   Chem type = C
+
+Date: 2023-07-19 13:46:27.189505
+
+Input:
+
+   ρ  = 3.76E+05
+   v  = 3
+   T  = 2000
+   δ  = 1
+   Av = 0.05
+   13C/12C   = 35
+   Chem type = C
+   Rate      = 16
+
+Output file: v3_Crat35
+
+Info:
+   Testing relevance shielding parameters
+
+--------------------------------
