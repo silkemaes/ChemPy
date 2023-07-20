@@ -106,7 +106,6 @@ def solve(ρ, T, δ, Av, v, C13C12, chemtype, Δt, rate, filename, logmessage = 
 
         return ts, ys,  toc-tic, specs
 
-
 def save(ts, ys, specs, filename):
 
     out = np.array(ys)
@@ -127,3 +126,104 @@ def save(ts, ys, specs, filename):
             f.write('\n')
 
     return    
+
+def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now() ,method = 'BDF',atol = 1.e-30, rtol = 1.e-7):
+    '''
+    Solve the chemical ODE, given by the ODE function. \n
+    Adjusted for data generation process \n
+    \n
+    INPUT: \n
+        - input = np.array(ro,T,delta,Av) \n
+        - Δt = solve over this amount of seconds \n
+        - rate = integer, gives version of the rate equations and ODE, either 13 or 16. 16 is prefered. \n
+
+    '''
+    start = time()
+
+    ρ  = input[0]
+    T  = input[1]
+    δ  = input[2]
+    Av = input[3]
+
+    if rate == 13:
+        from src.ode.dcodes     import ODE
+    if rate == 16:
+        from src.ode.acodes     import ODE
+
+    kB, mH, rGr, nGr, stckH = getcst()
+    yr_to_sec = units.year.to('s')    
+
+    ## calculate H accretion on dust
+    Haccr = stckH *np.pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(np.pi*mH))**0.5
+
+    # ## set initial conditions
+    # n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)     # nconsv_tot = TOTAL in fortran code
+
+    ndot        = np.zeros(len(n))
+    nconsv      = np.zeros(len(nconsv_tot))
+
+    v = 11
+    C13C12 = 69  ## Ramstedt & Olofsson (2014)
+
+    k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
+
+
+    # solvers = ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
+
+    print(' >> Solving ODE with Δt',Δt,'yr...')
+    tic = time()
+    ## solve ODE
+    solution = solve_ivp(
+        fun          = ODE,
+        t_span       = [0.0, Δt],
+        y0           = n.astype(np.float64),    ## hier terug abundanties meegeven
+        method       = method,                  ## zoals DVODE
+        args         = (ndot, nconsv, nconsv_tot,k, ρ, Haccr),
+        dense_output = False,                   ## if True: returns interpolation function
+        atol         = atol,
+        rtol         = rtol
+        )
+    toc = time()
+
+    solve_time = toc-tic
+
+    assert solution['status'] == 0
+
+    ys = solution['y']
+
+    print(solution['message'])
+
+    print('DONE!')
+    print('')
+
+    print('>> Saving output...')
+
+    stop = time()
+
+    overhead_time = stop-start
+
+    abs = np.array(n,ys[-1])
+
+    save_dg(input, abs, np.array([solve_time,overhead_time]), name)
+
+    print('DONE!')
+
+    return ys[-1]
+
+def save_dg(input, abs, time, name):
+    '''
+    Save model input & output as '.npy' object. \n
+    - input = 1D np.array(rho, T, delta, Av, dt) \n
+    - abs   = 2D np.array([initial abundances],[final abunances]) \n
+    - time  = 1D np.array(time needed to solve the ODE system, overhead time) \n
+    - name  = name of the model = datetime.now()
+    '''
+
+    loc = (Path(__file__).parent / f'../out/{name}/').resolve() 
+
+    np.save(loc+'input', input) 
+    np.save(loc+'absundances', abs)
+    np.save(loc+'tictoc', time)
+    
+    return
+

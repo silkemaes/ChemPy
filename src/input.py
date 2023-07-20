@@ -29,7 +29,6 @@ def density(Mdot,v, r):
     Mdot = Mdot * Msunyr                            # gram/s
     vexp = v    * cms                               # cm/s
 
-
     dens = Mdot / (4*np.pi * vexp * r**2 * mu * mH)       # g/cm^3
 
     # dens = dens * g_to_kg * cm_to_m**(-3)           # kg/m^3
@@ -52,7 +51,8 @@ def setinput():
     ## input physics
     Mdot = 1.e-7
     vexp = 10.
-    ρ = density(Mdot, vexp, 1.e15)
+    r    = 1.e14
+    ρ = density(Mdot, vexp, r)
     # ρ = 1.e+6
     T = 2500.
     δ = 1.e-5      
