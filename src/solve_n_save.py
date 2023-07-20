@@ -65,10 +65,10 @@ def solve(ρ, T, δ, Av, v, C13C12, chemtype, Δt, rate, filename, logmessage = 
     solution = solve_ivp(
         fun          = ODE,
         t_span       = [0.0, Δt],
-        y0           = n.astype(np.float64),
-        method       = method,   ## zoals DVODE
+        y0           = n.astype(np.float64),    ## hier terug abundanties meegeven
+        method       = method,                  ## zoals DVODE
         args         = (ndot, nconsv, nconsv_tot,k, ρ, Haccr),
-        dense_output = False,    ## if True: returns interpolation function
+        dense_output = False,                   ## if True: returns interpolation function
         atol         = atol,
         rtol         = rtol
         )
