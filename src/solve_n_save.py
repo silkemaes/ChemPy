@@ -2,6 +2,7 @@ import numpy            as np
 from time               import time
 from pathlib            import Path
 import datetime         as dt
+import os
 
 import src.rates        as rates
 from src.input          import getcst
@@ -145,6 +146,12 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
     δ  = input[2]
     Av = input[3]
 
+    print('---------------------------------------')
+    print('Input:')
+    print('[density, temperature, delta, Av], dt:')
+    print(input,np.round(Δt,2))
+    print('')
+
     if rate == 13:
         from src.ode.dcodes     import ODE
     if rate == 16:
@@ -170,7 +177,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
 
     # solvers = ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
 
-    print(' >> Solving ODE with Δt',Δt,'yr...')
+    print(' >> Solving ODE for Δt =',np.round(Δt,2),'yr...')
     tic = time()
     ## solve ODE
     solution = solve_ivp(
@@ -193,20 +200,22 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
 
     print(solution['message'])
 
-    print('DONE!')
+    print('DONE! In',np.round(solve_time,2),'seconds.')
     print('')
 
-    print('>> Saving output...')
+    print(' >> Saving output...')
 
     stop = time()
 
     overhead_time = stop-start
 
-    abs = np.array(n,ys[-1])
+    abs = np.vstack((n,ys.T[-1])).T
+    input = np.array([ρ,T,δ,Av,Δt])
 
     save_dg(input, abs, np.array([solve_time,overhead_time]), name)
 
-    print('DONE!')
+    print('DONE! Output found in ../out/'+str(name))
+    print('---------------------------------------')
 
     return ys[-1]
 
@@ -219,11 +228,14 @@ def save_dg(input, abs, time, name):
     - name  = name of the model = datetime.now()
     '''
 
-    loc = (Path(__file__).parent / f'../out/{name}/').resolve() 
+    loc = 'out/'+str(name)+'/' 
+    newpath = (Path(__file__).parent / f'../{loc}').resolve()
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
 
-    np.save(loc+'input', input) 
-    np.save(loc+'absundances', abs)
-    np.save(loc+'tictoc', time)
+    np.save((Path(__file__).parent / f'../{loc}input').resolve(), input) 
+    np.save((Path(__file__).parent / f'../{loc}abundances').resolve(), abs)
+    np.save((Path(__file__).parent / f'../{loc}tictoc').resolve(), time)
     
     return
 

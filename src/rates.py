@@ -47,11 +47,12 @@ alb = 1./(1.-w)
 
 def read_rate_file(rate):
     '''
-    Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \ 
+    Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \n 
     (McElroy et al., 2013, M. VdS' papers)
     '''
 
     loc = (Path(__file__).parent / f'../rates/rate{rate}.rates').resolve()
+    # print(loc)
 
     rates = dict()
     with open(loc, 'r') as f:
@@ -81,7 +82,8 @@ def read_specs_file(chemtype, rate):
     
     loc_parnt = (Path(__file__).parent / f'../rates/{chemtype}.parents').resolve()
     loc_specs = (Path(__file__).parent / f'../rates/rate{rate}.specs').resolve()
-    
+    # print(loc_parnt)
+
     idxs        = np.loadtxt(loc_specs, usecols=(0), dtype=int, skiprows = 1)     
     specs_all   = np.loadtxt(loc_specs, usecols=(1), dtype=str, skiprows = 1)  ## Y in fortran77 code
 
@@ -144,7 +146,7 @@ def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
     '''
     Calculate the reaction rate for all reactions.
 
-    First read in reaction rate file, from this, depending on the reaction type, \ 
+    First read in reaction rate file, from this, depending on the reaction type, \n 
     the correct reaction rate is calculated.
     '''
 
@@ -182,18 +184,17 @@ def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
 @njit
 def Arrhenius_rate(α, β, γ, T):
     '''
-    Arrhenius law for two-body reactions.
-
-    Reaction-dependent parameters:
-        - α = speed/probability of reaction
-        - β = temperature dependence
-        - γ = energy barrier
-
-    Physics dependent parameters:
-        - T = temperature
-
-    Constants:
-        - frac = 1/300
+    Arrhenius law for two-body reactions. \n \n
+    Reaction-dependent parameters: \n
+        - α = speed/probability of reaction \n
+        - β = temperature dependence \n
+        - γ = energy barrier \n
+\n
+    Physics dependent parameters:\n
+        - T = temperature\n
+\n
+    Constants:\n
+        - frac = 1/300\n
     '''
     k = α*(T*frac)**β*np.exp(-γ/T)
     return k

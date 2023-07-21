@@ -11,7 +11,8 @@ def read_shielding(loc, spec):
     Read in shielding rates from tables.
     '''
     shielding = np.loadtxt(loc, skiprows=9, dtype=np.float64)
-    leg = (Path(__file__).parent / f'../shielding/{spec}/{spec}legend.txt').resolve()
+    # leg = (Path(__file__).parent / f'../shielding/{spec}/{spec}legend.txt').resolve()
+    leg = dir = '/STER/silkem/ChemTorch/shielding/'+spec+'/'+spec+'legend.txt'
 
     spec = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (0))
     H2 = np.loadtxt(leg, skiprows = 3, dtype = np.float64, usecols = (1), max_rows=shielding.shape[0])
@@ -143,18 +144,20 @@ def retrieve_rate(n_i, Av, T, vexp, C13C12, spec):
         - spec      = list with column densities from specie \n
         - H2        = list with column densities from H2
     '''
-
+    # print(spec)
     dir_shielding = 'shielding/'
     v = select_shield_v(vexp)
     if spec == 'CO':
         temp = get_shield_table(T, Av, spec)
         loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(C13C12)
-    if spec == 'N2':
+    elif spec == 'N2':
         temp, N_H = get_shield_table(T, Av, spec)
         loc = spec+'shield.'+str(v)+'.'+str(temp)+'.'+str(N_H)
 
-    shielding, lgd_spec, lgd_H2 = read_shielding((Path(__file__).parent / f'../{dir_shielding}{spec}/{loc}.dat').resolve(), spec)
-
+    # dir = (Path(__file__).parent / f'../{dir_shielding}{spec}/{loc}.dat').resolve()
+    dir = dir = '/STER/silkem/ChemTorch/'+dir_shielding+spec+'/'+loc+'.dat'
+    shielding, lgd_spec, lgd_H2 = read_shielding(dir, spec)
+    
     N_H2 = Av * 1.87e21
     N = N_H2 * n_i[spec] 
 
