@@ -172,12 +172,15 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
     v = 11
     C13C12 = 69  ## Ramstedt & Olofsson (2014)
 
+    print(' >> Calculate chemical rates...')
     k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
 
 
     # solvers = ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
 
-    print(' >> Solving ODE for Δt =',np.round(Δt,2),'yr...')
+    print('DONE!')
+    print('')
+    print(' >> Solving ODE for Δt =',np.round(Δt,4),'yr...')
     tic = time()
     ## solve ODE
     solution = solve_ivp(
@@ -207,14 +210,14 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
 
     stop = time()
 
-    overhead_time = stop-start
+    overhead_time = (stop-start)-solve_time
 
     abs = np.vstack((n,ys.T[-1])).T
     input = np.array([ρ,T,δ,Av,Δt])
 
     save_dg(input, abs, np.array([solve_time,overhead_time]), name)
 
-    print('DONE! Output found in ../out/'+str(name))
+    print('DONE! Output found in ../out/'+str(name)+'/')
     print('---------------------------------------')
 
     return ys[-1]

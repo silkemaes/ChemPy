@@ -149,31 +149,42 @@ def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
     First read in reaction rate file, from this, depending on the reaction type, \n 
     the correct reaction rate is calculated.
     '''
-
+    # print(' >> Reading rate file...')
     rates, type, α, β, γ = read_rate_file(rate)
+    # print(' >> DONE!')
+    # print('')
 
     k = np.zeros(len(type))
 
+    # print(' >> Calculating chemical rates...')
     for i in range(len(type)):
         if type[i] == 'CP':
             k[i] = CP_rate(α[i]) 
         elif type[i] == 'CR':
             k[i] = CR_rate(α[i], β[i], γ[i], T)
         elif type[i] == 'PH':
-            if rates[i+1][1] == 'CO':
-                COshieldrate = shield.retrieve_rate(nshield_i, Av, T, v, C13C12, 'CO')                
-                k[i] = COshieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
-            elif rates[i+1][1] == 'N2':
-                N2shieldrate = shield.retrieve_rate(nshield_i, Av, T, v, None, 'N2')
-                k[i] = N2shieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
-            else:
-                k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
+            # if rates[i+1][1] == 'CO':
+            #     print(' >> CO self-slielding...')
+            #     COshieldrate = shield.retrieve_rate(nshield_i, Av, T, v, C13C12, 'CO')                
+            #     k[i] = COshieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
+            #     print(' >> DONE!')
+            #     print('')
+            # elif rates[i+1][1] == 'N2':
+            #     print(' >> N2 self-slielding...')
+            #     N2shieldrate = shield.retrieve_rate(nshield_i, Av, T, v, None, 'N2')
+            #     k[i] = N2shieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
+            #     print(' >> DONE!')
+            #     print('')
+            # else:
+            k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
         elif type[i] == 'IP':
             k[i] = 0
         elif type[i] == 'AP':
             k[i] = 0
         else:
             k[i] = Arrhenius_rate(α[i], β[i], γ[i], T)
+    # print(' >> rates DONE!')
+    # print('')
 
     return k
 
