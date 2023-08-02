@@ -148,7 +148,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
 
     print('---------------------------------------')
     print('Input:')
-    print('[density, temperature, delta, Av], dt:')
+    print('[density, temperature, delta, Av] dt:')
     print(input,np.round(Δt,2))
     print('')
 
