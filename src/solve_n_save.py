@@ -128,7 +128,7 @@ def save(ts, ys, specs, filename):
 
     return    
 
-def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now() ,method = 'BDF',atol = 1.e-30, rtol = 1.e-7):
+def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1.e-30, rtol = 1.e-7):
     '''
     Solve the chemical ODE, given by the ODE function. \n
     Adjusted for data generation process \n
@@ -139,6 +139,8 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
         - rate = integer, gives version of the rate equations and ODE, either 13 or 16. 16 is prefered. \n
 
     '''
+    name = dt.datetime.now()
+
     start = time()
 
     ρ  = input[0]
@@ -146,7 +148,10 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
     δ  = input[2]
     Av = input[3]
 
-    print('---------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('Name:')
+    print(name)
+    print('')
     print('Input:')
     print('[density, temperature, delta, Av] dt:')
     print(input,np.round(Δt,2))
@@ -218,9 +223,9 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name = dt.datetime.now(
     save_dg(input, abs, np.array([solve_time,overhead_time]), name)
 
     print('DONE! Output found in ../out/'+str(name)+'/')
-    print('---------------------------------------')
+    print('------------------------------------------------------------------------------')
 
-    return ys[-1]
+    return ys.T[-1]
 
 def save_dg(input, abs, time, name):
     '''
