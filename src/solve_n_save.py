@@ -185,7 +185,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1
 
     print('DONE!')
     print('')
-    print(' >> Solving ODE for Δt =',np.round(Δt,4),'yr...')
+    print(' >> Solving ODE for Δt =',np.round(Δt),'sec...')
     tic = time()
     ## solve ODE
     solution = solve_ivp(
