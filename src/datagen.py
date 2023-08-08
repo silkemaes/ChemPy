@@ -1,17 +1,11 @@
-import numpy                as np
 from astropy import units   as units
+import numpy                as np
 import sys
-from pathlib            import Path
-from matplotlib         import rcParams, rc
 from scipy.interpolate  import interp1d
-import types
-# Change the matplotlib default parameters
-rcParams.update({'font.size':   8})
-rcParams.update({'figure.dpi': 120})
+
 
 sys.path.append('/lhome/silkem/ChemTorch/ChemTorch/')
-from src.read               import read_data_chemtorch
-# from src.rates          import *
+
 from src.solve_n_save       import solve_dg
 from src.input              import density
 import src.rates            as rates
