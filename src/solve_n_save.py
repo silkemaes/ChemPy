@@ -202,30 +202,34 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1
 
     solve_time = toc-tic
 
-    assert solution['status'] == 0
+    if solution['status'] == 0:
+        print('Could not solve.')
+        print('No solution saved, will continue with next input.')
+        return n
 
-    ys = solution['y']
+    else:
+        ys = solution['y']
 
-    print(solution['message'])
+        print(solution['message'])
 
-    print('DONE! In',np.round(solve_time,2),'seconds.')
-    print('')
+        print('DONE! In',np.round(solve_time,2),'seconds.')
+        print('')
 
-    print(' >> Saving output...')
+        print(' >> Saving output...')
 
-    stop = time()
+        stop = time()
 
-    overhead_time = (stop-start)-solve_time
+        overhead_time = (stop-start)-solve_time
 
-    abs = np.vstack((n,ys.T[-1])).T
-    input = np.array([ρ,T,δ,Av,Δt])
+        abs = np.vstack((n,ys.T[-1])).T
+        input = np.array([ρ,T,δ,Av,Δt])
 
-    save_dg(input, abs, np.array([solve_time,overhead_time]), name)
+        save_dg(input, abs, np.array([solve_time,overhead_time]), name)
 
-    print('DONE! Output found in ../out/'+str(name)+'/')
-    print('------------------------------------------------------------------------------')
+        print('DONE! Output found in ../out/'+str(name)+'/')
+        print('------------------------------------------------------------------------------')
 
-    return ys.T[-1]
+        return ys.T[-1]
 
 def save_dg(input, abs, time, name):
     '''
