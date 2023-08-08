@@ -87,13 +87,10 @@ def next_input_idv(ρ, T, δ, Av):
 def next_input(input):
 	ρ = input[0]
 	T = input[1]
-	δ = input[2]
-	Av= input[3]
 	ρ_next  = calc_next(fdens , ρ , ρ_min , ρ_max , nstep)
 	T_next  = calc_next(ftemp , T , T_min , T_max , nstep)
-	δ_next  = calc_next(fdelta, δ , δ_min , δ_max , nstep)
-	Av_next = calc_next(fAv   , Av, Av_min, Av_max, nstep)
-	# print(ρ_next.type)
+	δ_next  = genSamples(δ_min , δ_max , nstep, 1, fdelta)[0]
+	Av_next = genSamples(Av_min, Av_max, nstep, 1, fAv)[0]
 	return [ρ_next, T_next, δ_next, Av_next]
 
 def get_dt():
