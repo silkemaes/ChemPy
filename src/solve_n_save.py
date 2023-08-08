@@ -202,7 +202,11 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1
 
     solve_time = toc-tic
 
-    if solution['status'] == 0:
+    # print(solution['status'])
+
+    # assert solution['status'] == 0
+
+    if solution['status'] != 0:
         print('Could not solve.')
         print('No solution saved, will continue with next input.')
         return n
