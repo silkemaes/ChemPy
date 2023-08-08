@@ -24,7 +24,7 @@ T_max = max(np.load(samploc+'dT_range.npy'))
 δ_min = 1.e-6
 δ_max = 1
 Av_min = -1
-Av_max = -np.log(δ_min)
+Av_max = -np.log10(δ_min)
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
@@ -58,11 +58,17 @@ def fdt(x):
 ## generate random numbers between [0,1)
 ## Define a function to return N samples
 def genSamples(xmin, xmax, nstep, N, f):
-	xbin = np.linspace(xmin, xmax, nstep)
+	if f == fdelta:
+		xbin = np.logspace(np.log10(xmin), np.log10(xmax), nstep)
+	else:
+		xbin = np.linspace(xmin, xmax, nstep)
 	# print(xmin,xmax)
 	ycum = np.cumsum(f(xbin))
 	# plt.plot(ycum)
-	xbin = np.linspace(xmin, xmax, len(ycum))
+	if f == fdelta:
+		xbin = np.logspace(np.log10(xmin), np.log10(xmax), len(ycum))
+	else:
+		xbin = np.linspace(xmin, xmax, len(ycum))
 	u = np.random.uniform(ycum.min(), ycum.max(), int(N))
 	## take the inverse of cumm. function
 	func_interp = interp1d(ycum, xbin)
