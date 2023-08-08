@@ -163,7 +163,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1
         from src.ode.acodes     import ODE
 
     kB, mH, rGr, nGr, stckH = getcst()
-    yr_to_sec = units.year.to('s')    
+    # yr_to_sec = units.year.to('s')    
 
     ## calculate H accretion on dust
     Haccr = stckH *np.pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(np.pi*mH))**0.5

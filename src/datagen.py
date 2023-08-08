@@ -1,7 +1,5 @@
 import numpy                as np
-import matplotlib.pyplot    as plt
 from astropy import units   as units
-import datetime as dt
 import sys
 from pathlib            import Path
 from matplotlib         import rcParams, rc
@@ -16,6 +14,7 @@ from src.read               import read_data_chemtorch
 # from src.rates          import *
 from src.solve_n_save       import solve_dg
 from src.input              import density
+import src.rates            as rates
 
 rate = 16
 
@@ -106,6 +105,33 @@ def next_input(input):
 def get_dt():
 	return genSamples(dt_min, dt_max, nstep, 1, fdt)[0] 
 
+
+def get_temp(T, eps, r):
+    R_star = 1.0e14            ## cm
+    temp = T*(r/R_star)**-eps
+    return temp
+
+
+
+
+r = np.array(np.logspace(14,18, 100))
+dens = density(1e-8, 5.,r )
+temp = get_temp(3000,0.4, r) 
+
+for i in range(len(dens)):
+    chemtype = 'C'
+
+    ## set initial conditions
+    n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)     # nconsv_tot = TOTAL in fortran code
+
+    δi  = 1.e-1
+    Avi = -np.log(1.e-3)
+    input = [dens[i],temp[i],δi,Avi]
+
+    while input[0] > 10. and input[1] > 10.:
+        Δt =  get_dt()    ## sec
+        n = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot)
+        input = next_input(input)
 
 
 

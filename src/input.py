@@ -23,7 +23,7 @@ def density(Mdot,v, r):
         - outflow velocity (v) in units of km/s
         - radius (r): location of the outflow, inputs of cm
     Output
-        - density in units of g/cm^3
+        - number density in units of cm^-3
     '''
     # r    = 1e18 #* unt.cgs.cm                       # cm
     Mdot = Mdot * Msunyr                            # gram/s
