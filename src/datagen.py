@@ -24,7 +24,7 @@ T_max = max(np.load(samploc+'dT_range.npy'))
 δ_min = 1.e-6
 δ_max = 1
 Av_min = -1
-Av_max = -np.log(δ_max)
+Av_max = -np.log(δ_min)
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
