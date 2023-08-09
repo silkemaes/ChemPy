@@ -124,10 +124,11 @@ for i in range(len(dens)):
     δi  = 1.e-1
     Avi = -np.log(1.e-3)
     input = [dens[i],temp[i],δi,Avi]
+    name = ''
 
     while input[0] > 10. and input[1] > 10.:
         Δt =  get_dt()    ## sec
-        n = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot)
+        n, name = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name)
         input = next_input(input)
 
 

@@ -128,7 +128,7 @@ def save(ts, ys, specs, filename):
 
     return    
 
-def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1.e-30, rtol = 1.e-7):
+def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BDF',atol = 1.e-30, rtol = 1.e-7):
     '''
     Solve the chemical ODE, given by the ODE function. \n
     Adjusted for data generation process \n
@@ -209,7 +209,8 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1
     if solution['status'] != 0:
         print('Could not solve.')
         print('No solution saved, will continue with next input.')
-        return n
+        n = np.load((Path(__file__).parent / f'../out/{name_prev}/abundances.npy').resolve())
+        return n.T[0], name_prev
 
     else:
         ys = solution['y']
@@ -233,7 +234,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot ,method = 'BDF',atol = 1
         print('DONE! Output found in ../out/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
 
-        return ys.T[-1]
+        return ys.T[-1], name
 
 def save_dg(input, abs, time, name):
     '''
