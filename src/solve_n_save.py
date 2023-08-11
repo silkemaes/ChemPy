@@ -128,7 +128,7 @@ def save(ts, ys, specs, filename):
 
     return    
 
-def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BDF',atol = 1.e-30, rtol = 1.e-7):
+def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
     '''
     Solve the chemical ODE, given by the ODE function. \n
     Adjusted for data generation process \n
@@ -151,6 +151,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
     print('------------------------------------------------------------------------------')
     print('Name:')
     print(name)
+    print('Use abundances from',name_prev)
     print('')
     print('Input:')
     print('[density, temperature, delta, Av] dt:')
@@ -177,14 +178,14 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
     v = 11
     C13C12 = 69  ## Ramstedt & Olofsson (2014)
 
-    print(' >> Calculate chemical rates...')
+    # print(' >> Calculate chemical rates...')
     k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
 
 
     # solvers = ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
 
-    print('DONE!')
-    print('')
+    # print('DONE!')
+    # print('')
     print(' >> Solving ODE for Δt =',np.round(Δt),'sec...')
     tic = time()
     ## solve ODE
@@ -207,8 +208,16 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
     # assert solution['status'] == 0
 
     if solution['status'] != 0:
-        print('Could not solve.')
+        print('Could not solve. Saved in /out/fail/.')
         print('No solution saved, will continue with next input.')
+
+        ## Save the failed model
+        stop = time()
+        overhead_time = (stop-start)-solve_time
+        input = np.array([ρ,T,δ,Av,Δt])
+        save_dg(input, n,np.array([solve_time,overhead_time]),'fail/'+name)
+
+        ## Restart from the previous initial abundances
         n = np.load((Path(__file__).parent / f'../out/{name_prev}/abundances.npy').resolve())
         return n.T[0], name_prev
 

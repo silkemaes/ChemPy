@@ -112,7 +112,7 @@ def get_temp(T, eps, r):
 
 
 r = np.array(np.logspace(14,18, 100))
-dens = density(1e-8, 5.,r )
+dens = density(1e-6, 15.,r )
 temp = get_temp(3000,0.4, r) 
 
 for i in range(len(dens)):
