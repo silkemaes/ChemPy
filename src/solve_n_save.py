@@ -208,17 +208,21 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
     # assert solution['status'] == 0
 
     if solution['status'] != 0:
-        print('Could not solve. Saved in /out/fail/.')
+        print('Could not solve.')
         print('No solution saved, will continue with next input.')
 
         ## Save the failed model
         stop = time()
         overhead_time = (stop-start)-solve_time
         input = np.array([ρ,T,δ,Av,Δt])
-        save_dg(input, n,np.array([solve_time,overhead_time]),'fail/'+name)
+        save_dg(input, n,np.array([solve_time,overhead_time]),'fail/'+str(name))
+        print('Saved in ../out/fail/.')
 
         ## Restart from the previous initial abundances
         n = np.load((Path(__file__).parent / f'../out/{name_prev}/abundances.npy').resolve())
+        
+        print('------------------------------------------------------------------------------')
+
         return n.T[0], name_prev
 
     else:
