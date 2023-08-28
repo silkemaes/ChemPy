@@ -111,9 +111,11 @@ def get_temp(T, eps, r):
 
 
 
-r = np.array(np.logspace(14,18, 100))
-dens = density(1e-6, 15.,r )
+r = np.array(np.logspace(15,18, 100))
+dens = density(2e-8, 5.,r )
 temp = get_temp(3000,0.4, r) 
+
+# print(dens)
 
 for i in range(len(dens)):
     chemtype = 'C'

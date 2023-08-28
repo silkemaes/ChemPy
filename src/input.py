@@ -29,7 +29,7 @@ def density(Mdot,v, r):
     Mdot = Mdot * Msunyr                            # gram/s
     vexp = v    * cms                               # cm/s
 
-    dens = Mdot / (4*np.pi * vexp * r**2 * mu * mH)       # g/cm^3
+    dens = Mdot / (4*np.pi * vexp * r**2 * mu * mH)       # cm^-3
 
     # dens = dens * g_to_kg * cm_to_m**(-3)           # kg/m^3
 

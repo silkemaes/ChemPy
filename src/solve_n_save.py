@@ -242,7 +242,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
         abs = np.vstack((n,ys.T[-1])).T
         input = np.array([ρ,T,δ,Av,Δt])
 
-        save_dg(input, abs, np.array([solve_time,overhead_time]), name)
+        save_dg(input, abs, np.array([solve_time,overhead_time]), 'success/'+str(name))
 
         print('DONE! Output found in ../out/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
