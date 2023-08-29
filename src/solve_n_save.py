@@ -219,7 +219,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
         print('Saved in ../out/fail/.')
 
         ## Restart from the previous initial abundances
-        n = np.load((Path(__file__).parent / f'../out/{name_prev}/abundances.npy').resolve())
+        n = np.load((Path(__file__).parent / f'../out/success/{name_prev}/abundances.npy').resolve())
         
         print('------------------------------------------------------------------------------')
 
