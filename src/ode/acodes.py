@@ -24,8 +24,9 @@ def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	HNR   = input density                                                    == ρ
 	'''
 	
-	
-	Y = np.abs(Y)
+	cutoff = 1e-50
+
+	Y[Y < cutoff] = 0
 
 
 	## Conserved species
