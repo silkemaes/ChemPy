@@ -23,8 +23,8 @@ T_min = min(np.load(samploc+'dT_range.npy'))
 T_max = max(np.load(samploc+'dT_range.npy'))
 δ_min = 1.e-6
 δ_max = 1
-Av_min = -1
-Av_max = -np.log10(δ_min)
+Av_min = 0
+Av_max = 6
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
@@ -112,8 +112,8 @@ def get_temp(T, eps, r):
 
 
 r = np.array(np.logspace(14,18, 100))
-dens = density(1e-9, 25,r )
-temp = get_temp(2500,0.9, r) 
+dens = density(1e-6, 15,r )
+temp = get_temp(1500,0.9, r)
 
 # print(np.log10(dens[0]))
 # print(temp[0])

@@ -210,6 +210,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
     if solution['status'] != 0:
         print('Could not solve.')
         print('No solution saved, will continue with next input.')
+        print(solution['message'])
 
         ## Save the failed model
         stop = time()
