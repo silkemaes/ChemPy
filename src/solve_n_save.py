@@ -228,6 +228,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
 
     else:
         ys = solution['y']
+        ts = solution['t']
 
         print(solution['message'])
 
@@ -240,17 +241,17 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
 
         overhead_time = (stop-start)-solve_time
 
-        abs = np.vstack((n,ys.T[-1])).T
+        abs = np.vstack((n,ys.T)).T
         input = np.array([ρ,T,δ,Av,Δt])
 
-        save_dg(input, abs, np.array([solve_time,overhead_time]), 'success/'+str(name))
+        save_dg(input, abs, ts, np.array([solve_time,overhead_time]), 'success/'+str(name))
 
         print('DONE! Output found in ../out/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
 
         return ys.T[-1], name
 
-def save_dg(input, abs, time, name):
+def save_dg(input, abs, ts, time, name):
     '''
     Save model input & output as '.npy' object. \n
     - input = 1D np.array(rho, T, delta, Av, dt) \n
@@ -266,6 +267,7 @@ def save_dg(input, abs, time, name):
 
     np.save((Path(__file__).parent / f'../{loc}input').resolve(), input) 
     np.save((Path(__file__).parent / f'../{loc}abundances').resolve(), abs)
+    np.save((Path(__file__).parent / f'../{loc}tstep').resolve(), ts)
     np.save((Path(__file__).parent / f'../{loc}tictoc').resolve(), time)
     
     return
