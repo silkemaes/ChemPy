@@ -151,7 +151,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
     print('------------------------------------------------------------------------------')
     print('Name:')
     print(name)
-    print('Use abundances from',name_prev)
+    print('Start with abundances from',name_prev)
     print('')
     print('Input:')
     print('[density, temperature, delta, Av] dt:')
@@ -203,10 +203,6 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
 
     solve_time = toc-tic
 
-    # print(solution['status'])
-
-    # assert solution['status'] == 0
-
     if solution['status'] != 0:
         print('Could not solve.')
         print('No solution saved, will continue with next input.')
@@ -220,7 +216,7 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
         print('Saved in ../out/fail/.')
 
         ## Restart from the previous initial abundances
-        n = np.load((Path(__file__).parent / f'../out/success/{name_prev}/abundances.npy').resolve())
+        n = np.load((Path(__file__).parent / f'../out/new/{name_prev}/abundances.npy').resolve())
         
         print('------------------------------------------------------------------------------')
 
@@ -244,9 +240,9 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
         abs = np.vstack((n,ys.T)).T
         input = np.array([ρ,T,δ,Av,Δt])
 
-        save_dg(input, abs, ts, np.array([solve_time,overhead_time]), 'success/'+str(name))
+        save_dg(input, abs, ts, np.array([solve_time,overhead_time]), 'new/'+str(name))
 
-        print('DONE! Output found in ../out/'+str(name)+'/')
+        print('DONE! Output found in ../out/new/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
 
         return ys.T[-1], name

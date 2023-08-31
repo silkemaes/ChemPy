@@ -4,7 +4,7 @@ import sys
 from scipy.interpolate  import interp1d
 
 
-sys.path.append('/lhome/silkem/ChemTorch/ChemTorch/')
+sys.path.append('/STER/silkem/ChemTorch/')
 
 from src.solve_n_save       import solve_dg
 from src.input              import density
@@ -12,9 +12,9 @@ import src.rates            as rates
 
 rate = 16
 
-outloc = '/lhome/silkem/ChemTorch/ChemTorch/out/'
-samploc = '/lhome/silkem/ChemTorch/ChemTorch/sampling/'
-dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
+outloc = '/STER/silkem/ChemTorch/out/'
+samploc = '/STER/silkem/ChemTorch/sampling/'
+# dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
 
 ## Ranges from PHANTOM models
 ρ_min = min(np.load(samploc+'drho_range.npy'))
@@ -110,14 +110,13 @@ def get_temp(T, eps, r):
 
 
 
+r = np.array(np.logspace(14,18, 100))
+dens = density(1e-10, 2.5,r )
+temp = get_temp(3000,0.4, r)
 
-r = np.array(np.logspace(14,18, 10))
-dens = density(5e-5, 25,r )
-temp = get_temp(3000,0.3, r)
-
-print(np.log10(dens[0]))
-print(temp[0])
-xxx
+#print(np.log10(dens[0]))
+#print(temp[0])
+#xxx
 for i in range(len(dens)):
     chemtype = 'C'
 
@@ -133,6 +132,8 @@ for i in range(len(dens)):
         Δt =  get_dt()    ## sec
         n, name = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name)
         input = next_input(input)
+        # break
+    # break
 
 
 
