@@ -78,7 +78,10 @@ def genSamples(xmin, xmax, nstep, N, f):
 
 def calc_next(f, param_i, min, max, nstep):
 	N = 1
-	ε = genSamples(min, max, nstep, N, f)
+	fact = 1
+	if param_i > 1e7:
+		fact = 10
+	ε = fact*genSamples(min, max, nstep, N, f)
 	# print(ε)
 	param_next = (ε + 1)*param_i
 	return param_next[0]
@@ -111,12 +114,12 @@ def get_temp(T, eps, r):
 
 
 r = np.array(np.logspace(14,18, 100))
-dens = density(1e-10, 2.5,r )
+dens = density(3e-11, 25,r )
 temp = get_temp(3000,0.4, r)
 
-#print(np.log10(dens[0]))
-#print(temp[0])
-#xxx
+# print(np.log10(dens[0]))
+# print(temp[0])
+# xxx
 for i in range(len(dens)):
     chemtype = 'C'
 
@@ -132,6 +135,7 @@ for i in range(len(dens)):
         Δt =  get_dt()    ## sec
         n, name = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name)
         input = next_input(input)
+		# print(input)
         # break
     # break
 
