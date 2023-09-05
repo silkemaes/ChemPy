@@ -114,8 +114,8 @@ def get_temp(T, eps, r):
 
 
 r = np.array(np.logspace(14,18, 100))
-dens = density(3e-11, 25,r )
-temp = get_temp(3000,0.4, r)
+dens = density(1e-5, 10,r )
+temp = get_temp(1100,0.4, r)
 
 # print(np.log10(dens[0]))
 # print(temp[0])
