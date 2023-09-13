@@ -128,7 +128,7 @@ def save(ts, ys, specs, filename):
 
     return    
 
-def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
+def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
     '''
     Solve the chemical ODE, given by the ODE function. \n
     Adjusted for data generation process \n
@@ -240,9 +240,9 @@ def solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,method = 'BD
         abs = np.vstack((n,ys.T)).T
         input = np.array([ρ,T,δ,Av,Δt])
 
-        save_dg(input, abs, ts, np.array([solve_time,overhead_time]), 'new/'+str(name))
+        save_dg(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
 
-        print('DONE! Output found in ../out/new/'+str(name)+'/')
+        print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
 
         return ys.T[-1], name

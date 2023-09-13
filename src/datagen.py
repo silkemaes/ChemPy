@@ -3,6 +3,8 @@ import numpy                as np
 import sys
 from scipy.interpolate  import interp1d
 
+import json
+
 
 sys.path.append('/STER/silkem/ChemTorch/')
 
@@ -14,6 +16,7 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
+dirname = 'easy-mace'
 # dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
 
 ## Ranges from PHANTOM models
@@ -27,6 +30,24 @@ Av_min = 0
 Av_max = 6
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
+
+metadata = {
+	'rel_rho_min' : ρ_min,
+	'rel_rho_max' : ρ_max,
+	'rel_T_min' : T_min,
+	'rel_T_max' : T_max,
+	'delta_min' : δ_min,
+	'delta_max' : δ_max,
+	'Av_min'    : Av_min,
+	'Av_max'    : Av_max,
+	'dt_min'	: dt_min,
+	'dt_max'    : dt_max
+}
+
+json_object = json.dumps(metadata, indent=4)
+with open(outloc+dirname+"/meta.json", "w") as outfile:
+    outfile.write(json_object)
+
 
 nstep = 512
 
@@ -79,8 +100,8 @@ def genSamples(xmin, xmax, nstep, N, f):
 def calc_next(f, param_i, min, max, nstep):
 	N = 1
 	fact = 1
-	if param_i > 1e7:
-		fact = 10
+	# if param_i > 1e7:
+	# fact = 10
 	ε = fact*genSamples(min, max, nstep, N, f)
 	# print(ε)
 	param_next = (ε + 1)*param_i
@@ -114,12 +135,12 @@ def get_temp(T, eps, r):
 
 
 r = np.array(np.logspace(14,18, 100))
-dens = density(1e-5, 10,r )
-temp = get_temp(1100,0.4, r)
+dens = density(1e-7, 15,r )
+temp = get_temp(3000,0.4, r)
 
-# print(np.log10(dens[0]))
-# print(temp[0])
-# xxx
+print(np.log10(dens[0]))
+print(temp[0])
+xxx
 for i in range(len(dens)):
     chemtype = 'C'
 
@@ -133,11 +154,8 @@ for i in range(len(dens)):
 
     while input[0] > 10. and input[1] > 10.:
         Δt =  get_dt()    ## sec
-        n, name = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name)
+        n, name = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname)
         input = next_input(input)
-		# print(input)
-        # break
-    # break
 
 
 
