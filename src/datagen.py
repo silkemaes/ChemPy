@@ -16,7 +16,8 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-dirname = 'easy-mace3'
+# dirname = 'easy-mace3'
+dirname = 'new'
 # dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
 
 ## Ranges from PHANTOM models
@@ -119,9 +120,9 @@ def get_temp(T, eps, r):
 
 
 
-Mdot = 1e-7
-v = 15
-T_star = 3000
+Mdot = 1e-5
+v = 5
+T_star = 7000
 eps = 0.4
 r = np.array(np.logspace(14,18, 100))
 dens = density(Mdot, v,r )
@@ -138,22 +139,23 @@ metadata = {
 	'Av_min'    : Av_min,
 	'Av_max'    : Av_max,
 	'dt_min'	: dt_min,
-	'dt_max'    : dt_max,
-	'Mdot' 		: Mdot,
-	'v'			: v,
-	'T_star'	: T_star,
-	'eps'		: eps,
-	'r_range'	: [14,18]
-
+	'dt_max'    : dt_max
+	# 'Mdot' 		: Mdot,
+	# 'v'			: v,
+	# 'T_star'	: T_star,
+	# 'eps'		: eps,
+	# 'r_range'	: [14,18]
 }
+
+# print(np.log10(dens[0]))
+# print(temp[0])
+# xxx
 
 json_object = json.dumps(metadata, indent=4)
 with open(outloc+dirname+"/meta.json", "w") as outfile:
     outfile.write(json_object)
 
-# print(np.log10(dens[0]))
-# print(temp[0])
-# xxx
+
 for i in range(len(dens)):
     chemtype = 'C'
 
