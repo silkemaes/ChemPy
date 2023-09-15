@@ -16,7 +16,7 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-dirname = 'easy-mace'
+dirname = 'easy-mace3'
 # dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
 
 ## Ranges from PHANTOM models
@@ -31,22 +31,7 @@ Av_max = 6
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
-metadata = {
-	'rel_rho_min' : ρ_min,
-	'rel_rho_max' : ρ_max,
-	'rel_T_min' : T_min,
-	'rel_T_max' : T_max,
-	'delta_min' : δ_min,
-	'delta_max' : δ_max,
-	'Av_min'    : Av_min,
-	'Av_max'    : Av_max,
-	'dt_min'	: dt_min,
-	'dt_max'    : dt_max
-}
 
-json_object = json.dumps(metadata, indent=4)
-with open(outloc+dirname+"/meta.json", "w") as outfile:
-    outfile.write(json_object)
 
 
 nstep = 512
@@ -134,13 +119,41 @@ def get_temp(T, eps, r):
 
 
 
+Mdot = 1e-7
+v = 15
+T_star = 3000
+eps = 0.4
 r = np.array(np.logspace(14,18, 100))
-dens = density(1e-7, 15,r )
-temp = get_temp(3000,0.4, r)
+dens = density(Mdot, v,r )
+temp = get_temp(T_star,eps, r)
 
-print(np.log10(dens[0]))
-print(temp[0])
-xxx
+
+metadata = {
+	'rel_rho_min' : ρ_min,
+	'rel_rho_max' : ρ_max,
+	'rel_T_min' : T_min,
+	'rel_T_max' : T_max,
+	'delta_min' : δ_min,
+	'delta_max' : δ_max,
+	'Av_min'    : Av_min,
+	'Av_max'    : Av_max,
+	'dt_min'	: dt_min,
+	'dt_max'    : dt_max,
+	'Mdot' 		: Mdot,
+	'v'			: v,
+	'T_star'	: T_star,
+	'eps'		: eps,
+	'r_range'	: [14,18]
+
+}
+
+json_object = json.dumps(metadata, indent=4)
+with open(outloc+dirname+"/meta.json", "w") as outfile:
+    outfile.write(json_object)
+
+# print(np.log10(dens[0]))
+# print(temp[0])
+# xxx
 for i in range(len(dens)):
     chemtype = 'C'
 
