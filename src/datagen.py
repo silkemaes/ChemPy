@@ -2,6 +2,7 @@ from astropy import units   as units
 import numpy                as np
 import sys
 from scipy.interpolate  import interp1d
+import os
 
 import json
 
@@ -12,12 +13,18 @@ from src.solve_n_save       import solve_dg
 from src.input              import density
 import src.rates            as rates
 
+
+def makeOutputDir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+    return path
+
 rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-# dirname = 'easy-mace3'
-dirname = 'new'
+dirname = 'C-short-dtime'
+# dirname = 'new'
 # dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
 
 ## Ranges from PHANTOM models
@@ -32,7 +39,7 @@ Av_max = 6
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
-
+makeOutputDir(outloc+dirname+'/')
 
 
 nstep = 512
@@ -110,8 +117,8 @@ def next_input(input):
 	return [ρ_next, T_next, δ_next, Av_next]
 
 def get_dt():
-	return genSamples(dt_min, dt_max, nstep, 1, fdt)[0] 
-
+	dt = genSamples(dt_min, dt_max, nstep, 1, fdt)[0] 
+	return dt
 
 def get_temp(T, eps, r):
     R_star = 1.0e14            ## cm
@@ -120,9 +127,9 @@ def get_temp(T, eps, r):
 
 
 
-Mdot = 1e-5
-v = 5
-T_star = 7000
+Mdot = 1e-7
+v = 10
+T_star = 2500
 eps = 0.4
 r = np.array(np.logspace(14,18, 100))
 dens = density(Mdot, v,r )
@@ -139,12 +146,12 @@ metadata = {
 	'Av_min'    : Av_min,
 	'Av_max'    : Av_max,
 	'dt_min'	: dt_min,
-	'dt_max'    : dt_max
-	# 'Mdot' 		: Mdot,
-	# 'v'			: v,
-	# 'T_star'	: T_star,
-	# 'eps'		: eps,
-	# 'r_range'	: [14,18]
+	'dt_max'    : dt_max,
+	'Mdot' 		: Mdot,
+	'v'			: v,
+	'T_star'	: T_star,
+	'eps'		: eps,
+	'r_range'	: [14,18]
 }
 
 # print(np.log10(dens[0]))
@@ -155,47 +162,20 @@ json_object = json.dumps(metadata, indent=4)
 with open(outloc+dirname+"/meta.json", "w") as outfile:
     outfile.write(json_object)
 
+i=0
+# for i in range(len(dens)):
+chemtype = 'C'
 
-for i in range(len(dens)):
-    chemtype = 'C'
+## set initial conditions
+n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)     # nconsv_tot = TOTAL in fortran code
 
-    ## set initial conditions
-    n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)     # nconsv_tot = TOTAL in fortran code
+δi  = 1.e-1
+Avi = -np.log(1.e-3)
+input = [dens[i],temp[i],δi,Avi]
+name = '' 
 
-    δi  = 1.e-1
-    Avi = -np.log(1.e-3)
-    input = [dens[i],temp[i],δi,Avi]
-    name = ''
-
-    while input[0] > 10. and input[1] > 10.:
-        Δt =  get_dt()    ## sec
-        n, name = solve_dg(input, Δt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname)
-        input = next_input(input)
-
-
-
-# nsamples = 1.e4
-# nbins = 10000
-
-# dens_samples = genSamples(ρ_min, ρ_max, nstep, nsamples, fdens)
-# temp_samples = genSamples(T_min, T_max, nstep, nsamples, ftemp)
-# delt_samples = genSamples(δ_min, δ_max, nstep, nsamples, fdelta)
-# Av_samples = genSamples(Av_min, Av_max, nstep, nsamples, fAv)
-# dt_samples = genSamples(dt_min, dt_max, nstep, nsamples, fdt)
-
-# fig = plt.figure(figsize=(13,7))
-
-# ax1 = plt.subplot(231)
-# ax2 = plt.subplot(232)
-# ax3 = plt.subplot(233)
-# ax4 = plt.subplot(234)
-# ax5 = plt.subplot(235)
-
-# ax1.hist(delt_samples,bins=nbins, density=True, color='y', alpha=0.7, label = 'delta')
-# ax2.hist(Av_samples  ,bins=nbins, density=True, color='g', alpha=0.7, label = 'Av')
-# ax3.hist(dens_samples,bins=nbins, density=True, color='r', alpha=0.7, label = 'density')
-# ax4.hist(temp_samples,bins=nbins, density=True, color='b', alpha=0.7, label = 'temp')
-# ax5.hist(dt_samples  ,bins=nbins, density=True, color='grey', alpha=0.7, label = 'dt')
-
-# fig.legend(loc = 'upper left')
-# plt.show()
+while input[0] > 10. and input[1] > 10.:
+	dt = get_dt()    ## sec
+	if dt < 10000:
+		n, name = solve_dg(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname)
+		input = next_input(input)
