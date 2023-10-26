@@ -9,7 +9,7 @@ import json
 
 sys.path.append('/STER/silkem/ChemTorch/')
 
-from src.solve_n_save       import solve_dg
+from src.solve_n_save       import solve
 from src.input              import density
 import src.rates            as rates
 
@@ -23,9 +23,9 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-dirname = 'C-short-dtime'
+dirname = 'torchode-test'
 # dirname = 'new'
-# dataloc = '/lhome/silkem/ChemTorch/PhantomSampling/'
+
 
 ## Ranges from PHANTOM models
 ρ_min = min(np.load(samploc+'drho_range.npy'))
@@ -151,7 +151,8 @@ metadata = {
 	'v'			: v,
 	'T_star'	: T_star,
 	'eps'		: eps,
-	'r_range'	: [14,18]
+	'r_range'	: [14,18],
+	'solvertype': ''
 }
 
 # print(np.log10(dens[0]))
@@ -175,7 +176,9 @@ input = [dens[i],temp[i],δi,Avi]
 name = '' 
 
 while input[0] > 10. and input[1] > 10.:
-	dt = get_dt()    ## sec
+	# dt = get_dt()    ## sec
+	dt = 5000
 	if dt < 10000:
-		n, name = solve_dg(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname)
+		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname)
 		input = next_input(input)
+	break
