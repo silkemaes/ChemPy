@@ -1,5 +1,6 @@
 import numpy            as np
 import torch
+import torchode     as to
 from time               import time
 from pathlib            import Path
 import datetime         as dt
@@ -27,12 +28,12 @@ def solver_ivp(ODE, Δt,n,args, atol, rtol, method):
         atol         = atol,
         rtol         = rtol
         )
-
+   
     return solution
 
-def solver_torchode(ODE, Δt,n,args, atol, rtol):
+def solver_torchode(ODE, Δt, n, args, atol, rtol):
 
-    t_eval = []
+    t_eval = torch.from_numpy(np.array([0.0,Δt]))
 
     odeterm = to.ODETerm(ODE, with_args=True)
     step_method          = to.Dopri5(term=odeterm)
@@ -42,16 +43,16 @@ def solver_torchode(ODE, Δt,n,args, atol, rtol):
     jit_solver = torch.compile(adjoint)
 
     problem = to.InitialValueProblem(
-        y0     = torch.from_numpy(n),  ## "view" is om met de batches om te gaan
-        t_eval = t_eval,
+        y0     = torch.from_numpy(n).view((1,-1)),  
+        t_eval = t_eval.view((1,-1)),
     )
 
     solution = jit_solver.solve(problem, args=args)
 
-    return 
+    return solution
 
 
-def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
+def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solvertype, method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
     '''
     Solve the chemical ODE, given by the ODE function. \n
     Adjusted for data generation process \n
@@ -84,7 +85,8 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, method
     if rate == 13:
         from src.ode.dcodes     import ODE
     if rate == 16:
-        from src.ode.acodes     import ODE
+        from src.ode.acodes     import ODE, torchODE
+
 
     kB, mH, rGr, nGr, stckH = getcst()
     # yr_to_sec = units.year.to('s')    
@@ -104,58 +106,73 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, method
     k = rates.calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12)
     
 
-    print(' >> Solving ODE for Δt =',np.round(Δt),'sec...')
+    print(' >> Solving ODE for Δt =',np.round(Δt,3),'sec...')
     tic = time()
     ## solve ODE
     args = (ndot, nconsv, nconsv_tot,k, ρ, Haccr)
-    solution = solver_ivp(ODE, Δt,n,args, atol, rtol, method)
-    toc = time()
 
-    solve_time = toc-tic
+    if solvertype == 'ivp':
+        solution = solver_ivp(ODE, Δt,n,args, atol, rtol, method)
+        toc = time()
 
-    if solution['status'] != 0:
-        print('Could not solve.')
-        print('No solution saved, will continue with next input.')
-        print(solution['message'])
+        solve_time = toc-tic
 
-        ## Save the failed model
-        stop = time()
-        overhead_time = (stop-start)-solve_time
-        input = np.array([ρ,T,δ,Av,Δt])
-        save(input, n,np.array([solve_time,overhead_time]),'fail/'+str(name))
-        print('Saved in ../out/fail/.')
+        if solution['status'] != 0:
+            print('Could not solve.')
+            print('No solution saved, will continue with next input.')
+            print(solution['message'])
 
-        ## Restart from the previous initial abundances
-        n = np.load((Path(__file__).parent / f'../out/new/{name_prev}/abundances.npy').resolve())
-        
-        print('------------------------------------------------------------------------------')
+            ## Save the failed model
+            stop = time()
+            overhead_time = (stop-start)-solve_time
+            input = np.array([ρ,T,δ,Av,Δt])
+            save(input, n,np.array([solve_time,overhead_time]),'fail/'+str(name))
+            print('Saved in ../out/fail/.')
 
-        return n.T[0], name_prev
+            ## Restart from the previous initial abundances
+            n = np.load((Path(__file__).parent / f'../out/new/{name_prev}/abundances.npy').resolve())
+            
+            print('------------------------------------------------------------------------------')
 
-    else:
-        ys = solution['y']
-        ts = solution['t']
+            return n.T[0], name_prev
 
-        print(solution['message'])
+        else:
+            ys = solution['y']
+            ts = solution['t']
 
-        print('DONE! In',np.round(solve_time,2),'seconds.')
-        print('')
+            print(solution['message'])
 
-        print(' >> Saving output...')
+            print('DONE! In',np.round(solve_time,2),'seconds.')
+            print('')
 
-        stop = time()
+            print(' >> Saving output...')
 
-        overhead_time = (stop-start)-solve_time
+            stop = time()
 
-        abs = np.vstack((n,ys.T)).T
-        input = np.array([ρ,T,δ,Av,Δt])
+            overhead_time = (stop-start)-solve_time
 
-        save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
+            abs = np.vstack((n,ys.T)).T
+            input = np.array([ρ,T,δ,Av,Δt])
 
-        print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
-        print('------------------------------------------------------------------------------')
+            save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
 
-        return ys.T[-1], name
+            print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
+            print('------------------------------------------------------------------------------')
+
+            return ys.T[-1], name 
+
+
+    if solvertype == 'torch':
+        solution = solver_torchode(torchODE, Δt,n,args, atol, rtol)
+        ys = solution.ys.data
+        ts = solution.ts.data
+
+        print('ys shape', ys.shape)
+        print('ts shape', ts.shape)
+
+        return
+
+
 
 def save(input, abs, ts, time, name):
     '''

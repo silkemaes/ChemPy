@@ -1,5 +1,6 @@
 import numpy as np
-from numba   import njit
+# from numba   import njit
+import torch
 
 '''
 IMPORTANT NOTE:
@@ -2849,7 +2850,7 @@ def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 
 
 
-def torchODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
+def torchODE(t, Y, args):
 	'''
 	Calculate the ODEs, using PyTorch.
 
@@ -2862,16 +2863,14 @@ def torchODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	HNR   = input density                                                    == ρ
 	'''
 	
-	t = torch.from_numpy(t)
-	Y = torch.from_numpy(Y)
+	YDOT, X, TOTAL, K, HNR, ACCR = args
+
 	YDOT = torch.from_numpy(YDOT)
 	X = torch.from_numpy(X)
 	TOTAL = torch.from_numpy(TOTAL)
 	K = torch.from_numpy(K)
-	HNR = torch.from_numpy(HNR)
-	ACCR = torch.from_numpy(ACCR)
 
-
+	Y = Y.view(-1)
 
 	cutoff = 1e-50
 
@@ -2893,8 +2892,8 @@ def torchODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 
 	## Non-conserved species
 	HLOSS=-ACCR*Y[0]
-	F = np.zeros(len(Y))
-	D = np.zeros(len(Y))
+	F = torch.zeros(len(Y))
+	D = torch.zeros(len(Y))
 
 	## H
 	F[0]=0.+K[110]*Y[17]*Y[51]*HNR+K[128]*Y[27]*Y[51]*HNR+K[133]*X[1]*Y[13]*HNR+K[134]*X[1]*X[1]*HNR+K[134]*X[1]*X[1]*HNR+K[135]*X[1]*Y[36]*HNR+K[138]*X[1]*Y[30]*HNR+K[139]*X[1]*X[0]*HNR+K[139]*X[1]*X[0]*HNR+K[140]*Y[0]*Y[13]*HNR+K[140]*Y[0]*Y[13]*HNR+K[141]*Y[0]*X[1]*HNR+K[141]*Y[0]*X[1]*HNR+K[141]*Y[0]*X[1]*HNR+K[142]*Y[0]*Y[36]*HNR
@@ -5692,5 +5691,7 @@ def torchODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	
 
 	YDOT=F-(D*Y)
+
+	YDOT.view(1,-1)
 
 	return YDOT

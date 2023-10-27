@@ -135,6 +135,7 @@ r = np.array(np.logspace(14,18, 100))
 dens = density(Mdot, v,r )
 temp = get_temp(T_star,eps, r)
 
+solvertype = 'torch'
 
 metadata = {
 	'rel_rho_min' : ρ_min,
@@ -152,7 +153,7 @@ metadata = {
 	'T_star'	: T_star,
 	'eps'		: eps,
 	'r_range'	: [14,18],
-	'solvertype': ''
+	'solvertype': solvertype
 }
 
 # print(np.log10(dens[0]))
@@ -177,8 +178,8 @@ name = ''
 
 while input[0] > 10. and input[1] > 10.:
 	# dt = get_dt()    ## sec
-	dt = 5000
+	dt = 5000.
 	if dt < 10000:
-		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname)
+		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype)
 		input = next_input(input)
 	break
