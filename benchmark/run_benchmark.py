@@ -3,6 +3,9 @@ import numpy                as np
 import sys
 import os
 import datetime         as dt
+import torch
+import torchode     as to
+
 
 from astropy import constants   as cst
 from astropy import units       as units
@@ -35,8 +38,8 @@ mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking int
 sys.path.append('/STER/silkem/ChemTorch/')
 
 from src.solve_n_save       import solve
-from src.input              import density
 import src.rates            as rates
+from src.ode.acodes_torch import torchODE
 
 
 def makeOutputDir(path):
@@ -71,8 +74,8 @@ time = radius/(v* cms)
 # time = 10**(np.log10(time)-np.log10(time)[0])
 chemtype = 'C' 
 
-# t = time
-
+atol = 1.e-20
+rtol = 1.e-5
 
 
 dt = np.zeros(len(time))
@@ -98,8 +101,21 @@ with open(out+dirname+"/meta.json", "w") as outfile:
 n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)    
 name = '' 
 
+## build & compile torch ODE solver
+# if solvertype == 'torch':
+# 	odeterm = to.ODETerm(torchODE, with_args=True)
+# 	step_method          = to.Dopri5(term=odeterm)
+# 	step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
+# 	adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
+# 	jit_solver = torch.compile(adjoint)
+
+# if solvertype == 'scipy':
+jit_solver = None
+
+
+
 for i in range(len(dens)):
     input = [dens[i], temp[i], δ[i], Av[i]]
-    n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype) # type: ignore
+    n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype, jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
 
 
