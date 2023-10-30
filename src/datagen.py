@@ -136,6 +136,7 @@ dens = density(Mdot, v,r )
 temp = get_temp(T_star,eps, r)
 
 solvertype = 'torch'
+# solvertype = 'scipy'
 
 metadata = {
 	'rel_rho_min' : ρ_min,
