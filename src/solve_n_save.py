@@ -33,19 +33,7 @@ def solver_scipy(ODE, Δt,n,args, atol, rtol, method):
 
 def solver_torchode(ODE, Δt, n, args, atol, rtol):
 
-    t_eval = torch.from_numpy(np.array([0.00000000e+00, 3.53954814e-03, 7.07909628e-03, 4.24745777e-02,
-        7.78700590e-02, 4.31824873e-01, 7.85779687e-01, 3.37343739e+00,
-        5.96109510e+00, 8.54875280e+00, 1.87717400e+01, 2.89947271e+01,
-        3.92177143e+01, 5.90482101e+01, 7.88787060e+01, 9.87092018e+01,
-        1.18539698e+02, 1.50119918e+02, 1.81700138e+02, 2.13280359e+02,
-        2.44860579e+02, 2.76440799e+02, 3.16470514e+02, 3.56500230e+02,
-        3.96529945e+02, 4.36559660e+02, 4.76589375e+02, 5.38534036e+02,
-        6.00478696e+02, 6.62423356e+02, 7.24368017e+02, 7.86312677e+02,
-        9.25197622e+02, 1.06408257e+03, 1.20296751e+03, 1.34185246e+03,
-        1.55576754e+03, 1.76968263e+03, 1.98359772e+03, 2.19751281e+03,
-        2.51249527e+03, 2.82747774e+03, 3.14246021e+03, 3.45744267e+03,
-        3.77242514e+03, 4.23116172e+03, 4.68989831e+03, 5.00000000e+03]))
-    # t_eval = torch.from_numpy(np.array([0.0,Δt]))
+    t_eval = torch.from_numpy(np.array([0.0,Δt]))
 
     odeterm = to.ODETerm(ODE, with_args=True)
     step_method          = to.Dopri5(term=odeterm)
@@ -92,6 +80,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
     print('Input:')
     print('[density, temperature, delta, Av] dt:')
     print(input,np.round(Δt,2))
+    print('Solver type:', solvertype)
     print('')
 
     if rate == 13:
@@ -184,8 +173,8 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
         ys = solution.ys.data.view(-1,466).numpy()
         ts = solution.ts.data.view(-1).numpy()
 
-        print('ys shape', ys.shape)
-        print('ts shape', ts.shape)
+        # print('ys shape', ys.shape)
+        # print('ts shape', ts.shape)
 
         stop = time()
         overhead_time = (stop-start)-solve_time
@@ -198,8 +187,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
         print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
 
-        return name, ys.T[-1]
-
+        return ys[-1], name
 
 
 def save(input, abs, ts, time, name):
