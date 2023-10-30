@@ -38,13 +38,13 @@ def solver_torchode(ODE, Δt, n, args, atol, rtol):
     odeterm = to.ODETerm(ODE, with_args=True)
     step_method          = to.Dopri5(term=odeterm)
     step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
-    adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller)
+    adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
 
     jit_solver = torch.compile(adjoint)
 
     problem = to.InitialValueProblem(
-        y0     = torch.from_numpy(n).view((1,-1)),  
-        t_eval = t_eval.view((1,-1)),
+        y0     = torch.from_numpy(n).view((1,-1)),   # type: ignore
+        t_eval = t_eval.view((1,-1)), # type: ignore
     )
 
     solution = jit_solver.solve(problem, args=args)
@@ -87,15 +87,10 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
     if rate == 16:
         from src.ode.acodes     import ODE, torchODE
 
-
-    kB, mH, rGr, nGr, stckH = getcst()
-    # yr_to_sec = units.year.to('s')    
+    kB, mH, rGr, nGr, stckH = getcst()    
 
     ## calculate H accretion on dust
     Haccr = stckH *np.pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(np.pi*mH))**0.5
-
-    # ## set initial conditions
-    # n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)     # nconsv_tot = TOTAL in fortran code
 
     ndot        = np.zeros(len(n))
     nconsv      = np.zeros(len(nconsv_tot))
@@ -126,7 +121,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
             stop = time()
             overhead_time = (stop-start)-solve_time
             input = np.array([ρ,T,δ,Av,Δt])
-            save(input, n,np.array([solve_time,overhead_time]),'fail/'+str(name))
+            save(input, n, None, np.array([solve_time,overhead_time]), 'fail/'+str(name))
             print('Saved in ../out/fail/.')
 
             ## Restart from the previous initial abundances
@@ -145,8 +140,6 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
             print('DONE! In',np.round(solve_time,2),'seconds.')
             print('')
 
-            print(' >> Saving output...')
-
             stop = time()
 
             overhead_time = (stop-start)-solve_time
@@ -154,6 +147,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
             abs = np.vstack((n,ys.T)).T
             input = np.array([ρ,T,δ,Av,Δt])
 
+            print(' >> Saving output...')
             save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
 
             print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
@@ -164,13 +158,31 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
 
     if solvertype == 'torch':
         solution = solver_torchode(torchODE, Δt,n,args, atol, rtol)
+
+        toc = time()
+        solve_time = toc-tic
+
+        print('DONE! In',np.round(solve_time,2),'seconds.')
+        print('')
+
         ys = solution.ys.data
         ts = solution.ts.data
 
         print('ys shape', ys.shape)
         print('ts shape', ts.shape)
 
-        return
+        stop = time()
+        overhead_time = (stop-start)-solve_time
+
+        abs = np.vstack((n,ys.T)).T
+        input = np.array([ρ,T,δ,Av,Δt])
+
+        save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
+
+        print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
+        print('------------------------------------------------------------------------------')
+
+        return 
 
 
 

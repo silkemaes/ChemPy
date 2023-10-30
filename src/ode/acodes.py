@@ -2854,12 +2854,12 @@ def torchODE(t, Y, args):
 	'''
 	Calculate the ODEs, using PyTorch.
 
-	Y     = number density of the non-conserved species                      == n \ 
-	YDOT  = change in number density of the conserved species                == ndot \ 
-	X     = number density of the conserved species during calculation       == nconsvdot \ 
-	K     = reaction rates, calculated in rates.py                           == k \ 
-	ACCR  = H accretion onto dust, calculated in main.py from input physics  == Haccr \ 
-	TOTAL = initial number density of conserved species                      == nconsv \ 
+	Y     = number density of the non-conserved species                      == n 
+	YDOT  = change in number density of the conserved species                == ndot  
+	X     = number density of the conserved species during calculation       == nconsvdot  
+	K     = reaction rates, calculated in rates.py                           == k 
+	ACCR  = H accretion onto dust, calculated in main.py from input physics  == Haccr  
+	TOTAL = initial number density of conserved species                      == nconsv 
 	HNR   = input density                                                    == ρ
 	'''
 	
@@ -2870,7 +2870,7 @@ def torchODE(t, Y, args):
 	TOTAL = torch.from_numpy(TOTAL)
 	K = torch.from_numpy(K)
 
-	Y = Y.view(-1)
+	
 
 	cutoff = 1e-50
 
@@ -5692,6 +5692,6 @@ def torchODE(t, Y, args):
 
 	YDOT=F-(D*Y)
 
-	YDOT.view(1,-1)
+	# YDOT.view(1,-1)
 
 	return YDOT

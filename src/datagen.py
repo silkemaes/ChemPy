@@ -180,6 +180,6 @@ while input[0] > 10. and input[1] > 10.:
 	# dt = get_dt()    ## sec
 	dt = 5000.
 	if dt < 10000:
-		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype)
+		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype) # type: ignore
 		input = next_input(input)
 	break
