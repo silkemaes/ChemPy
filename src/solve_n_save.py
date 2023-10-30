@@ -31,7 +31,7 @@ def solver_scipy(ODE, Δt,n,args, atol, rtol, method):
    
     return solution
 
-def solver_torchode(ODE, Δt, n, args, atol, rtol):
+def solver_torchode(ODE, jit_solver, Δt, n, args, atol, rtol):
 
     t_eval = torch.from_numpy(np.array([0.0,Δt]))
 
@@ -52,7 +52,7 @@ def solver_torchode(ODE, Δt, n, args, atol, rtol):
     return solution
 
 
-def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solvertype, method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
+def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solvertype,jitsolver, method = 'BDF',atol = 1.e-20, rtol = 1.e-5):
     '''
     Solve the chemical ODE, given by the ODE function. \n
     Adjusted for data generation process \n
@@ -162,7 +162,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
 
 
     if solvertype == 'torch':
-        solution = solver_torchode(torchODE, Δt,n,args, atol, rtol)
+        solution = solver_torchode(torchODE,jitsolver, Δt,n,args, atol, rtol)
 
         toc = time()
         solve_time = toc-tic
@@ -173,8 +173,6 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
         ys = solution.ys.data.view(-1,466).numpy()
         ts = solution.ts.data.view(-1).numpy()
 
-        # print('ys shape', ys.shape)
-        # print('ts shape', ts.shape)
 
         stop = time()
         overhead_time = (stop-start)-solve_time

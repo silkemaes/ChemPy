@@ -3,6 +3,8 @@ import numpy                as np
 import sys
 from scipy.interpolate  import interp1d
 import os
+import torch
+import torchode     as to
 
 import json
 
@@ -12,6 +14,7 @@ sys.path.append('/STER/silkem/ChemTorch/')
 from src.solve_n_save       import solve
 from src.input              import density
 import src.rates            as rates
+from src.ode.acodes_torch import torchODE
 
 
 def makeOutputDir(path):
@@ -23,8 +26,8 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-dirname = 'torchode-test'
-# dirname = 'new'
+# dirname = 'torchode-test'
+dirname = 'new'
 
 
 ## Ranges from PHANTOM models
@@ -32,10 +35,10 @@ dirname = 'torchode-test'
 ρ_max = max(np.load(samploc+'drho_range.npy'))
 T_min = min(np.load(samploc+'dT_range.npy'))
 T_max = max(np.load(samploc+'dT_range.npy'))
-δ_min = 1.e-6
-δ_max = 1
+δ_min = 1.e-18
+δ_max = 1.e-6
 Av_min = 0
-Av_max = 6
+Av_max = 1.e-0
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
@@ -127,7 +130,7 @@ def get_temp(T, eps, r):
 
 
 
-Mdot = 1e-7
+Mdot = 1e-5
 v = 10
 T_star = 2500
 eps = 0.4
@@ -135,8 +138,11 @@ r = np.array(np.logspace(14,18, 100))
 dens = density(Mdot, v,r )
 temp = get_temp(T_star,eps, r)
 
-solvertype = 'torch'
-# solvertype = 'scipy'
+atol = 1.e-20
+rtol = 1.e-5
+
+# solvertype = 'torch'
+solvertype = 'scipy'
 
 metadata = {
 	'rel_rho_min' : ρ_min,
@@ -154,7 +160,9 @@ metadata = {
 	'T_star'	: T_star,
 	'eps'		: eps,
 	'r_range'	: [14,18],
-	'solvertype': solvertype
+	'solvertype': solvertype,
+	'atol'		: atol,
+	'rtol'		: rtol
 }
 
 # print(np.log10(dens[0]))
@@ -177,10 +185,21 @@ Avi = -np.log(1.e-3)
 input = [dens[i],temp[i],δi,Avi]
 name = '' 
 
+## build & compile torch ODE solver
+# if solvertype == 'torch':
+# 	odeterm = to.ODETerm(torchODE, with_args=True)
+# 	step_method          = to.Dopri5(term=odeterm)
+# 	step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
+# 	adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
+# 	jit_solver = torch.compile(adjoint)
+
+# if solvertype == 'scipy':
+jit_solver = None
+
 while input[0] > 10. and input[1] > 10.:
-	# dt = get_dt()    ## sec
-	dt = 5000.
-	if dt < 10000:
-		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype) # type: ignore
-		input = next_input(input)
-	break
+	dt = get_dt()    ## sec
+	# dt = 5000.
+	# if dt < 10000:
+	n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
+	input = next_input(input)
+	# break
