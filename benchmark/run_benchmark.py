@@ -48,7 +48,7 @@ rate = 16
 
 ## location to save benchmark
 out = '/STER/silkem/ChemTorch/out/'
-dirname = 'bm_2'
+dirname = 'bm_torch'
 
 ## 1D chem model
 outloc = '/STER/silkem/CSEchem/'
@@ -62,7 +62,7 @@ Mdot = 1.e-6
 v = 15.
 eps = 0.6
 T_star = 2500
-solvertype = 'ivp'
+solvertype = 'torch'
 
 ## loading the physical input from the 1D model
 arr = np.loadtxt(outloc+outdir+mod+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4,11))
