@@ -101,16 +101,16 @@ with open(out+dirname+"/meta.json", "w") as outfile:
 n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)    
 name = '' 
 
-## build & compile torch ODE solver
-# if solvertype == 'torch':
-# 	odeterm = to.ODETerm(torchODE, with_args=True)
-# 	step_method          = to.Dopri5(term=odeterm)
-# 	step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
-# 	adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
-# 	jit_solver = torch.compile(adjoint)
+# build & compile torch ODE solver
+if solvertype == 'torch':
+	odeterm = to.ODETerm(torchODE, with_args=True) # type: ignore
+	step_method          = to.Dopri5(term=odeterm)
+	step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
+	adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
+	jit_solver = torch.compile(adjoint)
 
-# if solvertype == 'scipy':
-jit_solver = None
+if solvertype == 'scipy':
+    jit_solver = None
 
 
 

@@ -26,8 +26,8 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-# dirname = 'torchode-test'
-dirname = 'new'
+dirname = 'torchode-datagen-test'
+# dirname = 'new'
 
 
 ## Ranges from PHANTOM models
@@ -36,9 +36,9 @@ dirname = 'new'
 T_min = min(np.load(samploc+'dT_range.npy'))
 T_max = max(np.load(samploc+'dT_range.npy'))
 δ_min = 1.e-18
-δ_max = 1.e-6
+δ_max = 1
 Av_min = 0
-Av_max = 1.e-0
+Av_max = 40
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
@@ -130,9 +130,9 @@ def get_temp(T, eps, r):
 
 
 
-Mdot = 1e-5
+Mdot = 1e-8
 v = 10
-T_star = 2500
+T_star = 3000
 eps = 0.4
 r = np.array(np.logspace(14,18, 100))
 dens = density(Mdot, v,r )
@@ -141,8 +141,8 @@ temp = get_temp(T_star,eps, r)
 atol = 1.e-20
 rtol = 1.e-5
 
-# solvertype = 'torch'
-solvertype = 'scipy'
+solvertype = 'torch'
+# solvertype = 'scipy'
 
 metadata = {
 	'rel_rho_min' : ρ_min,
@@ -185,17 +185,20 @@ Avi = -np.log(1.e-3)
 input = [dens[i],temp[i],δi,Avi]
 name = '' 
 
-## build & compile torch ODE solver
-# if solvertype == 'torch':
-# 	odeterm = to.ODETerm(torchODE, with_args=True)
-# 	step_method          = to.Dopri5(term=odeterm)
-# 	step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
-# 	adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
-# 	jit_solver = torch.compile(adjoint)
+# build & compile torch ODE solver
+if solvertype == 'torch':
+	odeterm = to.ODETerm(torchODE, with_args=True)
+	step_method          = to.Dopri5(term=odeterm)
+	step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
+	adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
+	jit_solver = torch.compile(adjoint)
 
-# if solvertype == 'scipy':
-jit_solver = None
+if solvertype == 'scipy':
+	jit_solver = None
 
+
+
+## Solver loop
 while input[0] > 10. and input[1] > 10.:
 	dt = get_dt()    ## sec
 	# dt = 5000.

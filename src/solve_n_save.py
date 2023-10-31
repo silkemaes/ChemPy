@@ -35,12 +35,12 @@ def solver_torchode(ODE, jit_solver, Δt, n, args, atol, rtol):
 
     t_eval = torch.from_numpy(np.array([0.0,Δt]))
 
-    odeterm = to.ODETerm(ODE, with_args=True)
-    step_method          = to.Dopri5(term=odeterm)
-    step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
-    adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
+    # odeterm = to.ODETerm(ODE, with_args=True)
+    # step_method          = to.Dopri5(term=odeterm)
+    # step_size_controller = to.IntegralController(atol=atol, rtol=rtol, term=odeterm)
+    # adjoint              = to.AutoDiffAdjoint(step_method, step_size_controller) # type: ignore
 
-    jit_solver = torch.compile(adjoint)
+    # jit_solver = torch.compile(adjoint)
 
     problem = to.InitialValueProblem(
         y0     = torch.from_numpy(n).view((1,-1)),   # type: ignore
@@ -73,8 +73,8 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
     Av = input[3]
 
     print('------------------------------------------------------------------------------')
-    print('Name:')
-    print(name)
+    print('Directory & Name:')
+    print(dirname,' / ' ,name)
     print('Start with abundances from',name_prev)
     print('')
     print('Input:')
