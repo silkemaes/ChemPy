@@ -33,24 +33,33 @@ class CSEmod():
         - take np.log10 of abudances
 
     '''
-    def __init__(self, loc, dir=None, file=None):
-        data = []
+    def __init__(self, loc, dir=None, modelname=None):
 
-        if dir != None:
-            locs = os.listdir(dir) 
+        if loc == 'STER':
+            outloc = '/STER/silkem/CSEchem/'
+            outputdir = dir+'-'+modelname
+            inputfile = outputdir+'/inputChemistry_'+modelname+'.txt'
+        if loc == 'home':
+            outloc = '/lhome/silkem/CHEM/'
+            outputdir = dir+'/'+modelname
+            inputfile = dir+'/inputChemistry_'+modelname+'.txt'
 
-            for i in range(1,len(locs)+1):
-                name = dir+'csfrac_smooth_'+str(i)+'.out'
-                proper = read_data_1Dmodel(name)
-                data.append(proper)
-        
-        if file != None:
-            proper = read_data_1Dmodel(file)
-            data.append(proper)
+        ## retrieve input
+        self.Rstar, self.Tstar, self.Mdot, self.v, self.eps, self.rtol, self.atol = read_input_1Dmodel(inputfile)
 
-        df = np.concatenate(data)
 
-        self.n = df
+
+        ## retrieve abundances
+        abs = read_data_1Dmodel(outputdir+'/csfrac_smooth.out')
+
+        self.n = abs
+
+        ## retrieve physical parameters
+        arr = np.loadtxt(outputdir+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4))
+        self.radius, self.dens, self.temp, self.Av, self.delta = arr[:,0], arr[:,1], arr[:,2], arr[:,3], arr[:,4]
+        self.time = self.radius/(self.v) 
+
+
 
 def read_data_1Dmodel(file_name):
     '''
@@ -72,3 +81,21 @@ def read_data_1Dmodel(file_name):
                         proper = np.concatenate((proper, dirty), axis = 1)
                 dirty = []
     return proper
+
+
+def read_input_1Dmodel(file_name):
+    with open(file_name) as file:
+        lines = file.readlines()
+        lines = [item.rstrip() for item in lines]
+
+    Rstar = float(lines[3][9:])
+    Tstar = float(lines[4][9:])
+    Mdot  = float(lines[5][8:])     ## Msol/yr
+    v     = float(lines[6][11:])    ## sec
+    eps   = float(lines[8][19:])
+
+    rtol = float(lines[31][7:])
+    atol = float(lines[32][6:])
+
+    return Rstar, Tstar, Mdot, v, eps, rtol, atol
+
