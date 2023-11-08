@@ -39,7 +39,7 @@ sys.path.append('/STER/silkem/ChemTorch/')
 
 from src.solve_n_save       import solve
 import src.rates            as rates
-from src.ode.acodes_torch import torchODE
+from src.ode.acodes_torch   import torchODE
 
 
 def makeOutputDir(path):
@@ -51,21 +51,23 @@ rate = 16
 
 ## location to save benchmark
 out = '/STER/silkem/ChemTorch/out/'
-dirname = 'bm_torch'
+dirname = 'bm_C_Mdot1e-8_v2-5'
 
 ## 1D chem model
 outloc = '/STER/silkem/CSEchem/'
-outdir = '20210521_gridC_Mdot1e-6_v15_T_eps-'
-mod = 'model_2022-12-26h13-01-25'
+outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps-'
+mod = 'model_2022-12-24h23-19-06'
+
+
 
 makeOutputDir(out+dirname+'/')
 
 ## input
-Mdot = 1.e-6
-v = 15.
+Mdot = 1.e-8
+v = 2.5
 eps = 0.6
 T_star = 2500
-solvertype = 'torch'
+solvertype = 'scipy'
 
 ## loading the physical input from the 1D model
 arr = np.loadtxt(outloc+outdir+mod+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4,11))
@@ -94,12 +96,20 @@ metadata = {'1Dmodel'   : outloc+outdir+mod,
 
 json_object = json.dumps(metadata, indent=4)
 with open(out+dirname+"/meta.json", "w") as outfile:
+    print('>> Write meta file in '+out+dirname+'/meta.json...')
     outfile.write(json_object)
 
 
 ## set initial conditions
 n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)    
-name = '' 
+
+name = ''
+# name = '2023-10-31 16:06:15.696213'
+# n = np.load('/STER/silkem/ChemTorch/out/bm_torch/'+name+'/abundances.npy')[:,0]
+
+# print(n.shape)
+
+
 
 # build & compile torch ODE solver
 if solvertype == 'torch':
@@ -114,8 +124,8 @@ if solvertype == 'scipy':
 
 
 
-for i in range(len(dens)):
+for i in range(1,len(dens)):
     input = [dens[i], temp[i], δ[i], Av[i]]
-    n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype, jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
-
+    n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
+	
 

@@ -33,7 +33,7 @@ def solver_scipy(ODE, Δt,n,args, atol, rtol, method):
 
 def solver_torchode(ODE, jit_solver, Δt, n, args, atol, rtol):
 
-    t_eval = torch.from_numpy(np.array([0.0,Δt]))
+    t_eval = np.array([0.0,Δt])
 
     # odeterm = to.ODETerm(ODE, with_args=True)
     # step_method          = to.Dopri5(term=odeterm)
@@ -42,9 +42,12 @@ def solver_torchode(ODE, jit_solver, Δt, n, args, atol, rtol):
 
     # jit_solver = torch.compile(adjoint)
 
+    y0     = torch.from_numpy(n     .astype(np.float64)).view((1,-1))
+    t_eval = torch.from_numpy(t_eval.astype(np.float64)).view((1,-1))
+
     problem = to.InitialValueProblem(
-        y0     = torch.from_numpy(n).view((1,-1)),   # type: ignore
-        t_eval = t_eval.view((1,-1)), # type: ignore
+        y0     = y0,        # type: ignore
+        t_eval = t_eval,    # type: ignore
     )
 
     solution = jit_solver.solve(problem, args=args)
@@ -109,7 +112,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
     print(' >> Solving ODE for Δt =',np.round(Δt,3),'sec...')
     tic = time()
     ## solve ODE
-    args = (ndot, nconsv, nconsv_tot,k, ρ, Haccr)
+    args = (ndot.astype(np.float64), nconsv.astype(np.float64), nconsv_tot.astype(np.float64),k.astype(np.float64), ρ, Haccr)
 
     if solvertype == 'scipy':
         solution = solver_scipy(ODE, Δt,n,args, atol, rtol, method)

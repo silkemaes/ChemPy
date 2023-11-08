@@ -26,7 +26,7 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-dirname = 'torchode-datagen-test'
+dirname = 'torchode-bm-test_lowdens'
 # dirname = 'new'
 
 
@@ -130,9 +130,9 @@ def get_temp(T, eps, r):
 
 
 
-Mdot = 1e-8
-v = 10
-T_star = 3000
+Mdot = 1.e-7
+v = 10.
+T_star = 2500.
 eps = 0.4
 r = np.array(np.logspace(14,18, 100))
 dens = density(Mdot, v,r )
@@ -198,11 +198,17 @@ if solvertype == 'scipy':
 
 
 
+input = [5.689e+06, 8.290e+02, 6.754e-02, 1.781e+00]
+
+dt = 4.7e4
+
+
 ## Solver loop
 while input[0] > 10. and input[1] > 10.:
-	dt = get_dt()    ## sec
+	# input = next_input(input)
+	# dt = get_dt()    ## sec
 	# dt = 5000.
 	# if dt < 10000:
 	n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
 	input = next_input(input)
-	# break
+	break
