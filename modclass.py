@@ -40,22 +40,22 @@ class CSEmod():
             outputdir = dir+'-'+modelname
             inputfile = outputdir+'/inputChemistry_'+modelname+'.txt'
         if loc == 'home':
-            outloc = '/lhome/silkem/CHEM/'
-            outputdir = dir+'/'+modelname
-            inputfile = dir+'/inputChemistry_'+modelname+'.txt'
+            outloc = '/lhome/silkem/CHEM/Output_nov2022/'
+            outputdir = dir+'/models/'+modelname
+            inputfile = dir+'/models/inputChemistry_'+modelname+'.txt'
 
         ## retrieve input
-        self.Rstar, self.Tstar, self.Mdot, self.v, self.eps, self.rtol, self.atol = read_input_1Dmodel(inputfile)
+        self.Rstar, self.Tstar, self.Mdot, self.v, self.eps, self.rtol, self.atol = read_input_1Dmodel(outloc+inputfile)
 
 
 
         ## retrieve abundances
-        abs = read_data_1Dmodel(outputdir+'/csfrac_smooth.out')
+        abs = read_data_1Dmodel(outloc+outputdir+'/csfrac_smooth.out')
 
         self.n = abs
 
         ## retrieve physical parameters
-        arr = np.loadtxt(outputdir+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4))
+        arr = np.loadtxt(outloc+outputdir+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4))
         self.radius, self.dens, self.temp, self.Av, self.delta = arr[:,0], arr[:,1], arr[:,2], arr[:,3], arr[:,4]
         self.time = self.radius/(self.v) 
 
