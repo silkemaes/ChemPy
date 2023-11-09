@@ -200,7 +200,7 @@ if solvertype == 'scipy':
 
 input = [5.689e+06, 8.290e+02, 6.754e-02, 1.781e+00]
 
-dt = 4.7e4
+dt = 12.e4
 
 
 ## Solver loop

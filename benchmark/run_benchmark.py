@@ -40,6 +40,7 @@ sys.path.append('/STER/silkem/ChemTorch/')
 from src.solve_n_save       import solve
 import src.rates            as rates
 from src.ode.acodes_torch   import torchODE
+import modclass
 
 
 def makeOutputDir(path):
@@ -51,39 +52,75 @@ rate = 16
 
 ## location to save benchmark
 out = '/STER/silkem/ChemTorch/out/'
-dirname = 'bm_C_Mdot1e-8_v2-5'
+dirname = 'bm_C_torch_Mdot1e-8_v2-5'
 
 ## 1D chem model
 outloc = '/STER/silkem/CSEchem/'
-outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps-'
+outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps'
 mod = 'model_2022-12-24h23-19-06'
+
+# outdir = '20210527_gridC_Mdot1e-5_v20_T_eps'
+# mod = 'model_2022-12-27h14-01-50'
 
 
 
 makeOutputDir(out+dirname+'/')
 
-## input
-Mdot = 1.e-8
-v = 2.5
-eps = 0.6
-T_star = 2500
-solvertype = 'scipy'
+solvertype = 'torch'
 
 ## loading the physical input from the 1D model
-arr = np.loadtxt(outloc+outdir+mod+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4,11))
-radius, dens, temp, Av, δ, delta_AUV = arr[:,0], arr[:,1], arr[:,2], arr[:,3], arr[:,4], arr[:,5]
-time = radius/(v* cms)
+CSEmodel = modclass.CSEmod(loc = 'STER', dir = outdir, modelname = mod)
+
+## input
+Mdot   = CSEmodel.Mdot
+v      = CSEmodel.v
+eps    = CSEmodel.eps
+T_star = CSEmodel.Tstar
+
+
+dens = CSEmodel.dens
+temp = CSEmodel.temp
+δ    = CSEmodel.delta
+Av   = CSEmodel.Av
+time = CSEmodel.time
+
+# arr = np.loadtxt(outloc+outdir+mod+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4,11))
+# radius, dens, temp, Av, δ, delta_AUV = arr[:,0], arr[:,1], arr[:,2], arr[:,3], arr[:,4], arr[:,5]
+# time = radius/(v* cms)
 # time = 10**(np.log10(time)-np.log10(time)[0])
 chemtype = 'C' 
 
+
+## Remesh for the torchode benchmark
+
+if solvertype == 'torch':
+    print('yes torch')
+    t = np.linspace(min(time), 1.e9, 5000)
+
+    dens = np.interp(t, time, dens)
+    temp = np.interp(t, time, temp)
+    Av   = np.interp(t, time, Av  )
+    δ    = np.interp(t, time, δ   )
+
+
+
 atol = 1.e-20
 rtol = 1.e-5
+
+
+if solvertype == 'torch':
+    print('yes torch')
+    time = t
 
 
 dt = np.zeros(len(time))
 for i in range(1,len(time)):
     dt[i] = (time[i]-time[i-1])
 
+# print(len(dt), dt[1])
+# print(dt)
+
+# xx
 
 ## metadata
 metadata = {'1Dmodel'   : outloc+outdir+mod,
@@ -96,7 +133,7 @@ metadata = {'1Dmodel'   : outloc+outdir+mod,
 
 json_object = json.dumps(metadata, indent=4)
 with open(out+dirname+"/meta.json", "w") as outfile:
-    print('>> Write meta file in '+out+dirname+'/meta.json...')
+    print('\n>> Write meta file in '+out+dirname+'/meta.json...')
     outfile.write(json_object)
 
 
