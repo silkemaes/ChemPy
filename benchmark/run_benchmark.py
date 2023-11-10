@@ -2,23 +2,19 @@ from astropy import units   as units
 import numpy                as np
 import sys
 import os
-import datetime         as dt
+import datetime             as dt
 import torch
-import torchode     as to
-
+import torchode             as to
 
 from astropy import constants   as cst
 from astropy import units       as units
 from astropy.constants          import M_sun
-import matplotlib.pyplot        as plt
-
 import json
 
 ## units & constants
 Msun = M_sun.cgs.value      # gram
 yr   = 31536000             # s
 Msunyr = Msun/yr            # gram/s
-cms  = 1e5
 
 
 ## Physical constants
@@ -32,7 +28,6 @@ g_to_kg = units.gram.to('kg')
 cm_to_m = units.cm.to('m')
 
 mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking into account the abundance of He
-
 
 
 sys.path.append('/STER/silkem/ChemTorch/')
@@ -50,9 +45,11 @@ def makeOutputDir(path):
 
 rate = 16
 
+## -----------------------------   SETUP
+
 ## location to save benchmark
 out = '/STER/silkem/ChemTorch/out/'
-dirname = 'bm_C_torch_Mdot1e-8_v2-5'
+dirname = 'bm_torch_C_Mdot1e-8_v2-5-test'
 
 ## 1D chem model
 outloc = '/STER/silkem/CSEchem/'
@@ -62,11 +59,15 @@ mod = 'model_2022-12-24h23-19-06'
 # outdir = '20210527_gridC_Mdot1e-5_v20_T_eps'
 # mod = 'model_2022-12-27h14-01-50'
 
+solvertype = 'scipy'
+chemtype = 'C' 
+## ODE solver set
+atol = 1.e-20
+rtol = 1.e-5
+## --------------------------------------
 
 
 makeOutputDir(out+dirname+'/')
-
-solvertype = 'torch'
 
 ## loading the physical input from the 1D model
 CSEmodel = modclass.CSEmod(loc = 'STER', dir = outdir, modelname = mod)
@@ -77,22 +78,16 @@ v      = CSEmodel.v
 eps    = CSEmodel.eps
 T_star = CSEmodel.Tstar
 
-
+## parametrised inputs
 dens = CSEmodel.dens
 temp = CSEmodel.temp
 δ    = CSEmodel.delta
 Av   = CSEmodel.Av
 time = CSEmodel.time
 
-# arr = np.loadtxt(outloc+outdir+mod+'/csphyspar_smooth.out', skiprows=4, usecols=(0,1,2,3,4,11))
-# radius, dens, temp, Av, δ, delta_AUV = arr[:,0], arr[:,1], arr[:,2], arr[:,3], arr[:,4], arr[:,5]
-# time = radius/(v* cms)
-# time = 10**(np.log10(time)-np.log10(time)[0])
-chemtype = 'C' 
 
 
 ## Remesh for the torchode benchmark
-
 if solvertype == 'torch':
     print('yes torch')
     t = np.linspace(min(time), 1.e9, 5000)
@@ -104,10 +99,6 @@ if solvertype == 'torch':
 
 
 
-atol = 1.e-20
-rtol = 1.e-5
-
-
 if solvertype == 'torch':
     print('yes torch')
     time = t
@@ -115,12 +106,8 @@ if solvertype == 'torch':
 
 dt = np.zeros(len(time))
 for i in range(1,len(time)):
-    dt[i] = (time[i]-time[i-1])
+    dt[i-1] = (time[i]-time[i-1])
 
-# print(len(dt), dt[1])
-# print(dt)
-
-# xx
 
 ## metadata
 metadata = {'1Dmodel'   : outloc+outdir+mod,
@@ -141,14 +128,9 @@ with open(out+dirname+"/meta.json", "w") as outfile:
 n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)    
 
 name = ''
-# name = '2023-10-31 16:06:15.696213'
-# n = np.load('/STER/silkem/ChemTorch/out/bm_torch/'+name+'/abundances.npy')[:,0]
-
-# print(n.shape)
 
 
-
-# build & compile torch ODE solver
+## build & compile torch ODE solver
 if solvertype == 'torch':
 	odeterm = to.ODETerm(torchODE, with_args=True) # type: ignore
 	step_method          = to.Dopri5(term=odeterm)
@@ -160,8 +142,12 @@ if solvertype == 'scipy':
     jit_solver = None
 
 
+# print(dens[0], temp[0], δ[0], Av[0])
 
-for i in range(1,len(dens)):
+
+
+## run the models
+for i in range(0,len(dens)-1):
     input = [dens[i], temp[i], δ[i], Av[i]]
     n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
 	
