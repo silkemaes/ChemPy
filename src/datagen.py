@@ -26,8 +26,8 @@ rate = 16
 
 outloc = '/STER/silkem/ChemTorch/out/'
 samploc = '/STER/silkem/ChemTorch/sampling/'
-dirname = 'torchode-bm-test_lowdens'
-# dirname = 'new'
+# dirname = 'torchode-bm-test_lowdens'
+dirname = 'new'
 
 
 ## Ranges from PHANTOM models
@@ -35,10 +35,10 @@ dirname = 'torchode-bm-test_lowdens'
 ρ_max = max(np.load(samploc+'drho_range.npy'))
 T_min = min(np.load(samploc+'dT_range.npy'))
 T_max = max(np.load(samploc+'dT_range.npy'))
-δ_min = 1.e-18
-δ_max = 1
-Av_min = 0
-Av_max = 40
+δ_min = 1.e-120
+δ_max = 1.e-18
+Av_min = 40
+Av_max = 280
 dt_min = min(np.load(samploc+'dtime_range.npy'))
 dt_max = max(np.load(samploc+'dtime_range.npy'))
 
@@ -130,8 +130,8 @@ def get_temp(T, eps, r):
 
 
 
-Mdot = 1.e-7
-v = 10.
+Mdot = 1.e-5
+v = 20.
 T_star = 2500.
 eps = 0.4
 r = np.array(np.logspace(14,18, 100))
@@ -141,8 +141,8 @@ temp = get_temp(T_star,eps, r)
 atol = 1.e-20
 rtol = 1.e-5
 
-solvertype = 'torch'
-# solvertype = 'scipy'
+# solvertype = 'torch'
+solvertype = 'scipy'
 
 metadata = {
 	'rel_rho_min' : ρ_min,
@@ -198,17 +198,17 @@ if solvertype == 'scipy':
 
 
 
-input = [5.689e+06, 8.290e+02, 6.754e-02, 1.781e+00]
+# input = [9.016e+06, 9.518e+02, 3.752e-02, 2.242e+00]
 
-dt = 12.e4
+# dt = 6.e4
 
 
 ## Solver loop
 while input[0] > 10. and input[1] > 10.:
 	# input = next_input(input)
-	# dt = get_dt()    ## sec
+	dt = get_dt()    ## sec
 	# dt = 5000.
-	# if dt < 10000:
-	n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
-	input = next_input(input)
-	break
+	if dt < 10000:
+		n, name = solve(input, dt, rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
+		input = next_input(input)
+	
