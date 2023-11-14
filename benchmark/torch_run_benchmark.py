@@ -51,21 +51,22 @@ rate = 16
 
 ## location to save benchmark
 out = '/STER/silkem/ChemTorch/out/'
-dirname = 'bm_C_Mdot1e-5_v20'
+dirname = 'bm_C_Mdot1e-8_v2-5_partial'
+# dirname = 'torchode-bm-test_lowdens'
 
 ## 1D chem model
 outloc = '/STER/silkem/CSEchem/'
 
-# outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps'
-# mod = 'model_2022-12-24h23-19-06'
+outdir = '20210518_gridC_Mdot1e-8_v02_T_eps'
+mod = 'model_2022-12-24h23-19-06'
 
 # outdir = '20210521_gridC_Mdot1e-6_v15_T_eps'
 # mod = 'model_2022-12-26h13-01-25'
 
-outdir = '20210527_gridC_Mdot1e-5_v20_T_eps'
-mod = 'model_2022-12-27h14-01-50'
+# outdir = '20210527_gridC_Mdot1e-5_v20_T_eps'
+# mod = 'model_2022-12-27h14-01-50'
 
-solvertype = 'scipy'
+solvertype = 'torch'
 chemtype = 'C' 
 ## ODE solver set
 atol = 1.e-20
@@ -95,8 +96,7 @@ time = CSEmodel.time
 
 ## Remesh for the torchode benchmark
 if solvertype == 'torch':
-    print('yes torch')
-    t = np.linspace(min(time), 1.e9, 5000)
+    t = np.linspace(time[17], 1.e10,12000)
 
     dens = np.interp(t, time, dens)
     temp = np.interp(t, time, temp)
@@ -106,7 +106,6 @@ if solvertype == 'torch':
 
 
 if solvertype == 'torch':
-    print('yes torch')
     time = t
 
 
@@ -159,7 +158,7 @@ dirs = listdir(start_outpath+start_dirname+'/')
 dirs.remove('meta.json')
 dirs = natsorted(dirs)
 
-j = 14
+j = 18
 chem = modclass.ChemTorchMod(start_dirname, dirs[j])
 start_input = chem.p
 start_abs   = chem.n.T[-1]
@@ -171,5 +170,5 @@ n = start_abs
 for i in range(0,len(dens)-1):
     input = [dens[i], temp[i], δ[i], Av[i]]
     n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
-	
+    break
 

@@ -170,6 +170,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
         toc = time()
         solve_time = toc-tic
 
+        print('Status solver:',solution.status)
         print('DONE! In',np.round(solve_time,2),'seconds.')
         print('')
 
