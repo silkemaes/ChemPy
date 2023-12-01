@@ -94,7 +94,7 @@ time = CSEmodel.time
 
 
 
-## Remesh for the torchode benchmark
+## Remesh for the torchode benchmarkx
 if solvertype == 'torch':
     t = np.linspace(time[17], 1.e10,12000)
 
