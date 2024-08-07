@@ -2891,4 +2891,4 @@ def torchODE(t, Y, args):
 
 	YDOT=F-(D*Y)
 
-	return YDOT
+	return YDOT,X

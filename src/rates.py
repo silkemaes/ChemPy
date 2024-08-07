@@ -259,7 +259,11 @@ def photodissociation_rate(α, γ, δ, Av):
         - δ = outward dilution of the radiation field
         - Av = species-specific extinction (connected to optical depth)
     '''
-    k = α * δ * np.exp(-γ * Av)
+
+    AuvAv = 4.65 
+
+
+    k = α * δ * np.exp(-γ * Av/AuvAv)
     return k
 
 

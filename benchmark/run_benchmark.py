@@ -50,19 +50,23 @@ rate = 16
 ## location to save benchmark
 out = '/STER/silkem/ChemTorch/out/'
 # dirname = 'bm_C_Mdot1e-5_v20'
+dirname = 'bm_C_Mdot1e-6_v17-5_KROME_test'
 
 
 ## 1D chem model
 outloc = '/STER/silkem/CSEchem/'
 
-outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps'
-mod = 'model_2022-12-24h23-19-06'
+# outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps'
+# mod = 'model_2022-12-24h23-19-06'
 
 # outdir = '20210521_gridC_Mdot1e-6_v15_T_eps'
 # mod = 'model_2022-12-26h13-01-25'
 
 # outdir = '20210527_gridC_Mdot1e-5_v20_T_eps'
 # mod = 'model_2022-12-27h14-01-50'
+
+outdir = '20211015_gridC_Mdot1e-6_v17-5_T_eps'
+mod = 'model_2022-12-24h17-06-51'
 
 solvertype = 'scipy'
 chemtype = 'C' 
@@ -75,7 +79,7 @@ rtol = 1.e-5
 makeOutputDir(out+dirname+'/')
 
 ## loading the physical input from the 1D model
-CSEmodel = modclass.CSEmod(loc = 'STER', dir = outdir, modelname = mod)
+CSEmodel = modclass.CSEmod(loc = 'STERhome', dir = outdir, modelname = mod)
 
 ## input
 Mdot   = CSEmodel.Mdot

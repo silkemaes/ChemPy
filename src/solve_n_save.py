@@ -14,9 +14,13 @@ from astropy            import units
 
 
 
-def solver_scipy(ODE, Δt,n,args, atol, rtol, method):
+def solver_scipy(ODE, Δt, n, args, atol, rtol, method):
+
+    # print(Δt, Δt.dtype)
 
     # solver_methods = ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
+
+    print('... in solver loop ...')
 
     solution = solve_ivp(
         fun          = ODE,
@@ -115,7 +119,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
     args = (ndot.astype(np.float64), nconsv.astype(np.float64), nconsv_tot.astype(np.float64),k.astype(np.float64), ρ, Haccr)
 
     if solvertype == 'scipy':
-        solution = solver_scipy(ODE, Δt,n,args, atol, rtol, method)
+        solution = solver_scipy(ODE, Δt, n, args, atol, rtol, method)
         toc = time()
 
         solve_time = toc-tic
@@ -129,7 +133,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
             stop = time()
             overhead_time = (stop-start)-solve_time
             input = np.array([ρ,T,δ,Av,Δt])
-            save(input, n, None, np.array([solve_time,overhead_time]), 'fail/'+str(name))
+            save(input, n, None, np.array([solve_time,overhead_time]), 'fail/'+str(name), k)
             print('Saved in ../out/fail/.')
 
             ## Restart from the previous initial abundances
@@ -156,12 +160,12 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
             input = np.array([ρ,T,δ,Av,Δt])
 
             print(' >> Saving output...')
-            save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
+            save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name), k)
 
             print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
             print('------------------------------------------------------------------------------')
 
-            return ys.T[-1], name 
+            return ys.T[-1], name
 
 
     if solvertype == 'torch':
@@ -184,7 +188,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
         abs = np.vstack((n,ys)).T
         input = np.array([ρ,T,δ,Av,Δt])
 
-        save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name))
+        save(input, abs, ts, np.array([solve_time,overhead_time]), dirname+'/'+str(name), k)
 
         print('DONE! Output found in ../out/'+dirname+'/'+str(name)+'/')
         print('------------------------------------------------------------------------------')
@@ -192,7 +196,7 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
         return ys[-1], name
 
 
-def save(input, abs, ts, time, name):
+def save(input, abs, ts, time, name, k):
     '''
     Save model input & output as '.npy' object. \n
     - input = 1D np.array(rho, T, delta, Av, dt) \n
@@ -210,6 +214,7 @@ def save(input, abs, ts, time, name):
     np.save((Path(__file__).parent / f'../{loc}abundances').resolve(), abs)
     np.save((Path(__file__).parent / f'../{loc}tstep').resolve(), ts)
     np.save((Path(__file__).parent / f'../{loc}tictoc').resolve(), time)
+    np.save((Path(__file__).parent / f'../{loc}rates').resolve(), k)
     
     return
 

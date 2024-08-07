@@ -39,6 +39,10 @@ class CSEmod():
             outloc = '/STER/silkem/CSEchem/'
             outputdir = dir+'-'+modelname
             inputfile = outputdir+'/inputChemistry_'+modelname+'.txt'
+        if loc == 'STERhome':
+            outloc = '/STER/silkem/CSEchem/'
+            outputdir = dir+'/models/'+modelname
+            inputfile = dir+'/models/inputChemistry_'+modelname+'.txt'
         if loc == 'home':
             outloc = '/lhome/silkem/CHEM/Output_nov2022/'
             outputdir = dir+'/models/'+modelname
