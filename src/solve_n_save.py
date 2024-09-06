@@ -6,8 +6,8 @@ from pathlib            import Path
 import datetime         as dt
 import os
 
-import src.rates        as rates
-from src.input          import getcst
+import rates        as rates
+from input          import getcst
 
 from scipy.integrate    import solve_ivp
 from astropy            import units

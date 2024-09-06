@@ -11,26 +11,21 @@ from astropy import units       as units
 from astropy.constants          import M_sun
 import json
 
-## units & constants
-Msun = M_sun.cgs.value      # gram
-yr   = 31536000             # s
-Msunyr = Msun/yr            # gram/s
-
 
 ## Physical constants
 kB = cst.k_B.cgs.value          ## Boltzmann constant [erg/K]
 mH = cst.u.to('g').value        ## mass H atom = atomic mass unit [g]
-Msun = cst.M_sun.cgs.value      ## gram
-yr = units.year.to('s')         ## year in seconds
-Msunyr = Msun/yr                ## units of mass-loss rate in gram/s
-cms  = 1e5                      ## units of velocity in cm/s
-g_to_kg = units.gram.to('kg')
-cm_to_m = units.cm.to('m')
+# Msun = cst.M_sun.cgs.value      ## gram
+# yr = units.year.to('s')         ## year in seconds
+# Msunyr = Msun/yr                ## units of mass-loss rate in gram/s
+# cms  = 1e5                      ## units of velocity in cm/s
+# g_to_kg = units.gram.to('kg')
+# cm_to_m = units.cm.to('m')
 
 mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking into account the abundance of He
 
 
-sys.path.append('/STER/silkem/ChemTorch/')
+sys.path.append('/STER/silkem/ChemPy/')
 
 from src.solve_n_save       import solve
 import src.rates            as rates
@@ -48,7 +43,7 @@ rate = 16
 ## -----------------------------   SETUP
 
 ## location to save benchmark
-out = '/STER/silkem/ChemTorch/out/'
+out = '/STER/silkem/ChemPy/out/'
 # dirname = 'bm_C_Mdot1e-5_v20'
 dirname = 'bm_C_Mdot1e-6_v17-5_KROME_test'
 

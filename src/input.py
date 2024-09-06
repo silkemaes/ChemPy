@@ -49,14 +49,18 @@ def setinput():
     '''
 
     ## input physics
-    Mdot = 1.e-7
-    vexp = 10.
-    r    = 1.e14
+    Mdot = 1.e-7    ## mass-loss rate in Msol/yr
+    vexp = 10.      ## outflow velocity in km/s
+    r    = 1.e14    ## location of the outflow in cm
     ρ = density(Mdot, vexp, r)
-    # ρ = 1.e+6
-    T = 2500.
+    T = 2500.       ## temperature in K
+    ##- Radiation parameters, see https://ui.adsabs.harvard.edu/abs/2024ApJ...969...79M/abstract
     δ = 1.e-5      
     Av = 0.05  
+    ##-
+    Δt = 50000.     ## time step in seconds
+    solvertype = 'torch'
+    rate = 16
 
     r = 1.        ## setting inwards geometrical dilution
     ΔAv = 1.      ## inwards dust extinction  
@@ -83,7 +87,12 @@ def setinput():
     print('-----------------------')
     print('')
 
-    return ρ, T, δ, Av, chemtype, str(rate), vexp, C13C12
+    return ρ, T, δ, Av, chemtype, str(rate), vexp, C13C12, Δt, solvertype, rate
+
+def set_location():
+    dirname = 'test/'
+    name = 'test_torch'
+    return dirname, name
 
 def getcst():
     '''
@@ -102,4 +111,7 @@ def getcst():
     # AUV_AV = 4.65
     stckH = 0.3         ## sticking coefficient for H atoms
 
-    return kB, mH, rGr, nGr, stckH
+    mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking into account the abundance of He
+
+
+    return kB, mH, rGr, nGr, stckH, mu
