@@ -1,5 +1,7 @@
 ## ChemPy
-Chemical Kinetics code in Python, with option to use ODE solver compatible with PyTorch, namely [torchode](https://github.com/martenlienen/torchode) by Lienen & Gunnemann (2022).
+Chemical Kinetics code in Python, with option to use ODE solver compatible with PyTorch, namely [torchode](https://github.com/martenlienen/torchode) by Lienen & Gunnemann (2022). 
+
+Originally developed in the context of circumstellar outflows of AGB stars. Find more info [here](https://fys.kuleuven.be/ster/pub/phd-thesis-silke-maes/phd-thesis-silke-maes).
 
 ### Table of content
 1. [What is ChemPy?](#what)
