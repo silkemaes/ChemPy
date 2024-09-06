@@ -1,8 +1,16 @@
 ## ChemPy
 Chemical Kinetics code in Python, with option to use ODE solver compatible with PyTorch, namely [torchode](https://github.com/martenlienen/torchode) by Lienen & Gunnemann (2022).
 
+### Table of content
+1. [What is ChemPy?](#what)
+2. [How to run?](#run)
+3. [Updates](#updates)
+4. [Possible future work](#future)
+5. [Notes](#notes)
+6. [Rate equations](#rates)
+
 ---
-### What?
+### 1. What is ChemPy? <a name="what"></a>
 
 This is a 0D chemical kinetics code, written in Python3. It solves the set of ordinary differential equations (ODEs) that make up the chemical network.
 
@@ -15,7 +23,7 @@ The purpose is to use this code to generate data to build a chemistry emulator.
 Written by [S. Maes](https://github.com/silkemaes) & [F. De Ceuster](https://github.com/FredDeCeuster). 2023.
 
 ---
-### How to run
+### 2. How to run? <a name="run"></a>
 
 Run one 0D model:
 1. Manually put input values in script ```/scr/input.py```
@@ -28,7 +36,7 @@ Run one 0D model:
     ```
 
 ---
-### Updates
+### 3. Updates <a name="updates"></a>
 
 - 06.09.'24
 
@@ -39,16 +47,16 @@ Run one 0D model:
     Self shielding doesn't work --> causes and infinite loop somehow... In comment in file ```/src/rates.py```.
 
 ---
-### Possible future work
+### 4. Possible future work <a name="future"></a>
 
 - Write code using object oriented programming (currently not the case, sorry!).
 - Fix self-shielding of CO and N2.
 - Fix compatibility with torchode.
 
 ---
-### Notes
+### 5. Notes <a name="notes"></a>
 
-1. **_Self-shielding_**
+5.1. **_Self-shielding_**
 
 	From [table](https://home.strw.leidenuniv.nl/~ewine/photo/CO_photodissociation.html) by Visser et al. (2009).
 	
@@ -68,11 +76,11 @@ Run one 0D model:
 		- ${\rm CO}$: $\texttt{COshield.H2velocity[km/s].H2temp[K].13C/12C-ratio.dat}$
 		- ${\rm N_2}$: $\texttt{N2shield.H2velocity[km/s].1eH2temp[K].N(H)[cm**-2].dat}$
 
-2. ODEs in script ```/src/ode/*``` literally copied from the fortran ODEs of [Rate22-CSE code](https://github.com/MarieVdS/rate22_cse_code), using ```ODEs-to-python.ipynb```.
+5.2. ODEs in script ```/src/ode/*``` literally copied from the fortran ODEs of [Rate22-CSE code](https://github.com/MarieVdS/rate22_cse_code), using ```ODEs-to-python.ipynb```.
 
 ---
 
-### Rate equations 
+### 6. Rate equations <a name="rates"></a>
 *More info; see [PhD thesis](https://fys.kuleuven.be/ster/pub/phd-thesis-silke-maes/phd-thesis-silke-maes) Silke Maes, Chap. 3*
 - Two body: $$k=\alpha\left(\frac{T}{300}\right)^\beta\exp\left(-\frac{\gamma}{T}\right)$$ in ${\rm cm^3 \, s^{-1}}$
 - Cosmic rays:
