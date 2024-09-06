@@ -56,27 +56,28 @@ Run one 0D model:
 ---
 ### 5. Notes <a name="notes"></a>
 
-5.1. **_Self-shielding_**
+#### 5.1. Self-shielding
 
-	From [table](https://home.strw.leidenuniv.nl/~ewine/photo/CO_photodissociation.html) by Visser et al. (2009).
-	
-	If we assume that the dust extinction in the AGB wind is similar to the dust extinction in the ISM (so dust has similar properties), we can use this to determine the column densities of H2, CO and N2, without the need of any distances.
-	
-	[Predehl & Smitt (2995)](https://articles.adsabs.harvard.edu/pdf/1995A%26A...293..889P) found that for the ISM the column density of H2 can be determined by $N_{\rm H_2} = A_V \, 1.87\times 10^{21},$
-	with $N_{\rm H_2}$ in units of atoms ${\rm cm}^{-2}$ and $A_V$ in units of mag.
-	
-	For CO and $N_2$ we will multiply this ($N_{\rm H_2}$) with there parent abundance. We can do this, since the abundances of these two parent species barely vary, relatively speaking.
-	
-	Rewrite the shielding tables in a more convenient way compared to online:
-	- Tables are real tables now
-	- Axis in a separate file: 
-		- Rows: $N({\rm H_2})$
-		- Columns: $N({\rm CO})$ or $N({\rm N_2})$
-	- File name:
-		- ${\rm CO}$: $\texttt{COshield.H2velocity[km/s].H2temp[K].13C/12C-ratio.dat}$
-		- ${\rm N_2}$: $\texttt{N2shield.H2velocity[km/s].1eH2temp[K].N(H)[cm**-2].dat}$
+From [table](https://home.strw.leidenuniv.nl/~ewine/photo/CO_photodissociation.html) by Visser et al. (2009).
 
-5.2. ODEs in script ```/src/ode/*``` literally copied from the fortran ODEs of [Rate22-CSE code](https://github.com/MarieVdS/rate22_cse_code), using ```ODEs-to-python.ipynb```.
+If we assume that the dust extinction in the AGB wind is similar to the dust extinction in the ISM (so dust has similar properties), we can use this to determine the column densities of H2, CO and N2, without the need of any distances.
+
+[Predehl & Smitt (2995)](https://articles.adsabs.harvard.edu/pdf/1995A%26A...293..889P) found that for the ISM the column density of H2 can be determined by $N_{\rm H_2} = A_V \, 1.87\times 10^{21},$
+with $N_{\rm H_2}$ in units of atoms ${\rm cm}^{-2}$ and $A_V$ in units of mag.
+
+For CO and $N_2$ we will multiply this ($N_{\rm H_2}$) with there parent abundance. We can do this, since the abundances of these two parent species barely vary, relatively speaking.
+
+Rewrite the shielding tables in a more convenient way compared to online:
+- Tables are real tables now
+- Axis in a separate file: 
+	- Rows: $N({\rm H_2})$
+	- Columns: $N({\rm CO})$ or $N({\rm N_2})$
+- File name:
+	- ${\rm CO}$: $\texttt{COshield.H2velocity[km/s].H2temp[K].13C/12C-ratio.dat}$
+	- ${\rm N_2}$: $\texttt{N2shield.H2velocity[km/s].1eH2temp[K].N(H)[cm**-2].dat}$
+
+#### 5.2 ODEs
+The ODE function in scripts ```/src/ode/*``` literally copied from the fortran ODEs of [Rate22-CSE code](https://github.com/MarieVdS/rate22_cse_code), using ```ODEs-to-python.ipynb```.
 
 ---
 
