@@ -91,15 +91,16 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
     print('')
 
     if rate == 13:
-        from src.ode.dcodes     import ODE
+        from ode.dcodes     import ODE
 
     if rate == 16:
         if solvertype == 'scipy':
-            from src.ode.acodes     import ODE
+            from ode.acodes     import ODE
+            from ode.acodes     import calc_conserved
         if solvertype == 'torch':
-            from src.ode.acodes_torch import torchODE
+            from ode.acodes_torch import torchODE
 
-    kB, mH, rGr, nGr, stckH = getcst()    
+    kB, mH, rGr, nGr, stckH, mu = getcst()    
 
     ## calculate H accretion on dust
     Haccr = stckH *np.pi*(rGr**2.0)*ρ*nGr*(8.0*kB*T/(np.pi*mH))**0.5
@@ -148,15 +149,24 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
             ts = solution['t']
 
             print(solution['message'])
+            # print(nconsv_tot)
 
             print('DONE! In',np.round(solve_time,2),'seconds.')
             print('')
 
             stop = time()
 
+            n = np.concatenate((n, np.array([0,0.5])))
+
+            n_consv = calc_conserved(ys.T[-1], nconsv_tot)
+
+            y = np.concatenate((ys.T[-1],n_consv))
+
+            # print(n.shape, y.shape)
+
             overhead_time = (stop-start)-solve_time
 
-            abs = np.vstack((n,ys.T)).T
+            abs = np.concatenate((n,y))
             input = np.array([ρ,T,δ,Av,Δt])
 
             print(' >> Saving output...')

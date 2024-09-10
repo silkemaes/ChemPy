@@ -1,16 +1,16 @@
 import numpy as np
 import os
 
-class ChemTorchMod():
+class ChemPyMod():
     '''
-    Object representing 1 ChemTorch model.
+    Object representing 1 ChemPy model.
     Contains:
         - n     [2d np.array]: Abundances at different timesteps
         - tstep [1d np.array]: Timesteps that the classical ODE solver is evaluated
         - p     [1d np.array]: input of the model -> [rho, T, delta, Av]
     '''
     def __init__(self, dirname, dir=None):
-        outpath = '/STER/silkem/ChemTorch/out/'
+        outpath = '/STER/silkem/ChemPy/out/'
         
         self.n      = np.load(outpath+dirname+'/'+dir+'/abundances.npy')[:,1:] # type: ignore
         self.tstep  = np.load(outpath+dirname+'/'+dir+'/tstep.npy') # type: ignore

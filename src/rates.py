@@ -136,6 +136,7 @@ def initialise_abs(chemtype, rate):
     ## Initialise abundances of the conserved species
     abs_consv = np.zeros(len(consv))
     abs_consv[1] = 0.5                  ## H2
+    
 
     return abs, abs_consv, specs, nshield_i
 

@@ -25,11 +25,11 @@ mH = cst.u.to('g').value        ## mass H atom = atomic mass unit [g]
 mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking into account the abundance of He
 
 
-sys.path.append('/STER/silkem/ChemPy/')
+sys.path.append('/STER/silkem/ChemPy/src/')
 
-from src.solve_n_save       import solve
-import src.rates            as rates
-from src.ode.acodes_torch   import torchODE
+from solve_n_save       import solve
+import rates            as rates
+from ode.acodes_torch   import torchODE
 import modclass
 
 
@@ -45,7 +45,7 @@ rate = 16
 ## location to save benchmark
 out = '/STER/silkem/ChemPy/out/'
 # dirname = 'bm_C_Mdot1e-5_v20'
-dirname = 'bm_C_Mdot1e-6_v17-5_KROME_test'
+dirname = 'bm_C_Mdot1e-6_v17-5_KROME_testingstage'
 
 
 ## 1D chem model
