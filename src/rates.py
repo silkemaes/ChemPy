@@ -137,6 +137,7 @@ def initialise_abs(chemtype, rate):
     abs_consv = np.zeros(len(consv))
     abs_consv[1] = 0.5                  ## H2
     
+    abs = np.concatenate((abs, abs_consv))
 
     return abs, abs_consv, specs, nshield_i
 
