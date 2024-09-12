@@ -44,6 +44,110 @@ frac = 1/300.
 w = 0.5             ## grain albedo
 alb = 1./(1.-w)
 
+## Rate equations
+
+# @jax.jit
+def Arrhenius_rate(params):
+    '''
+    Arrhenius law for two-body reactions. \n \n
+    Reaction-dependent parameters: \n
+        - α = speed/probability of reaction \n
+        - β = temperature dependence \n
+        - γ = energy barrier \n
+\n
+    Physics dependent parameters:\n
+        - T = temperature\n
+\n
+    Constants:\n
+        - frac = 1/300\n
+    '''
+
+    α = params[0]
+    β = params[1]
+    γ = params[2]
+    T = params[3]
+
+    k = α*(T*frac)**β*np.exp(-γ/T)
+    return k
+
+# @jax.jit
+def CP_rate(params):
+    '''
+    Direct cosmic ray ionisation reaction rate, give by alpha.
+
+    For the following reaction type: CP
+    '''
+
+    α = params[0]
+
+    k = α
+    return k
+
+
+# @jax.jit
+def CR_rate(params):
+    '''
+    Cosmic ray-induced photoreaction rate.
+
+    Reaction-dependent parameters:
+        - α = speed/probability of reaction
+        - β = temperature dependence
+        - γ 
+        
+    Physics dependent parameters:
+        - T = temperature
+        - w = dust-grain albedo == 0.5
+
+    Constants:
+        - frac = 1/300
+        - alb = 1./(1.-w)
+
+    For the following reaction type: CR
+    '''
+
+    α = params[0]
+    β = params[1]
+    γ = params[2]
+    T = params[3]
+
+    k = α * (T*frac)**β * (γ)*alb
+    return k
+
+
+# @jax.jit
+def photodissociation_rate(params):
+    '''
+    For the following reaction type: PH
+
+    Photodissociation reaction rate:
+        - α = speed/probability of reaction
+        - γ
+
+    Physical parameters (input model):
+        - δ = outward dilution of the radiation field
+        - Av = species-specific extinction (connected to optical depth)
+    '''
+
+    AuvAv = 4.65 
+
+    α = params[0]
+    γ = params[2]
+    δ = params[4]
+    Av = params[5]
+
+
+    k = α * δ * np.exp(-γ * Av/AuvAv)
+    return k
+
+
+rate_calculators = {
+    'CP': CP_rate,
+    'CR': CR_rate,
+    'PH': photodissociation_rate,
+    'Ar': Arrhenius_rate,
+    'IP': 0,
+    'AP': 0
+}
 
 ## Reading rate & species file
 
@@ -53,12 +157,6 @@ def read_rate_file():
     Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \n 
     (McElroy et al., 2013, M. VdS' papers)
     '''
-
-    # print('---------------')
-    # print(rate)
-    # print(rate.dtype)
-    # print(rate.item())
-    # print('---------------')
 
     rate = 16
     loc = (Path(__file__).parent / f'../rates/rate{rate}.rates').resolve()
@@ -76,14 +174,18 @@ def read_rate_file():
     β = np.zeros(len(rates))
     γ = np.zeros(len(rates))
     for nb in rates:
-        type.append(str(rates[nb][0]))
+        rate_type = str(rates[nb][0])
+        if rate_type != 'PH' or rate_type != 'CP' or rate_type != 'CR' or rate_type != 'IP' or rate_type != 'AP':
+            type.append('Ar')
+        else:
+            type.append(rate_type)
         α[nb-1] = float(rates[nb][8])
         β[nb-1] = float(rates[nb][9])
         γ[nb-1] = float(rates[nb][10])
 
     print(" >> Rate file read in.")
 
-    return jnp.array(rates), type, jnp.array(α), jnp.array(β), jnp.array(γ)
+    return rates, type, jnp.array(α), jnp.array(β), jnp.array(γ)
 
 
 def read_specs_file(chemtype, rate):
@@ -94,7 +196,6 @@ def read_specs_file(chemtype, rate):
     
     loc_parnt = (Path(__file__).parent / f'../rates/{chemtype}.parents').resolve()
     loc_specs = (Path(__file__).parent / f'../rates/rate{rate}.specs').resolve()
-    # print(loc_parnt)
 
     idxs        = np.loadtxt(loc_specs, usecols=(0), dtype=int, skiprows = 1)     
     specs_all   = np.loadtxt(loc_specs, usecols=(1), dtype=str, skiprows = 1)  ## Y in fortran77 code
@@ -155,8 +256,7 @@ def initialise_abs(chemtype, rate):
 
 
 ## Calculating the reaction rates
-@jax.jit
-def calculate_rates(T, δ, Av):#, rate, nshield_i, v, C13C12):
+def get_rates(T, δ, Av):#, rate, nshield_i, v, C13C12):
     '''
     Calculate the reaction rate for all reactions.
 
@@ -164,121 +264,29 @@ def calculate_rates(T, δ, Av):#, rate, nshield_i, v, C13C12):
     the correct reaction rate is calculated.
     '''
     # print(' >> Reading rate file...')
-    rates, type, α, β, γ = read_rate_file()
+    rates, reation_type, α, β, γ = read_rate_file()
     # print(' >> DONE!')
     # print('')
 
-    k = np.zeros(len(type))
+    k = jnp.zeros(len(reation_type))
 
-    # print(' >> Calculating chemical rates...')
-    for i in range(len(type)):
-        if type[i] == 'CP':
-            k[i] = CP_rate(α[i]) 
-        elif type[i] == 'CR':
-            k[i] = CR_rate(α[i], β[i], γ[i], T)
-        elif type[i] == 'PH':
-            # if rates[i+1][1] == 'CO':
-            #     print(' >> CO self-slielding...')
-            #     COshieldrate = shield.retrieve_rate(nshield_i, Av, T, v, C13C12, 'CO')                
-            #     k[i] = COshieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
-            #     print(' >> DONE!')
-            #     print('')
-            # elif rates[i+1][1] == 'N2':
-            #     print(' >> N2 self-slielding...')
-            #     N2shieldrate = shield.retrieve_rate(nshield_i, Av, T, v, None, 'N2')
-            #     k[i] = N2shieldrate*photodissociation_rate(α[i], γ[i], δ, Av)
-            #     print(' >> DONE!')
-            #     print('')
-            # else:
-            k[i] = photodissociation_rate(α[i], γ[i], δ, Av)
-        elif type[i] == 'IP':
-            k[i] = 0
-        elif type[i] == 'AP':
-            k[i] = 0
-        else:
-            k[i] = Arrhenius_rate(α[i], β[i], γ[i], T)
-    # print(' >> rates DONE!')
-    # print('')
+    for i in range(len(reation_type)):
+        k = k.at[i].set(calculate_rate(reation_type[i], (α[i], β[i], γ[i], T, δ, Av)))
 
     return k
 
 
-
-## Rate equations
-
-@jax.jit
-def Arrhenius_rate(α, β, γ, T):
-    '''
-    Arrhenius law for two-body reactions. \n \n
-    Reaction-dependent parameters: \n
-        - α = speed/probability of reaction \n
-        - β = temperature dependence \n
-        - γ = energy barrier \n
-\n
-    Physics dependent parameters:\n
-        - T = temperature\n
-\n
-    Constants:\n
-        - frac = 1/300\n
-    '''
-    k = α*(T*frac)**β*np.exp(-γ/T)
-    return k
+def calculate_rate(reaction_type, params):
+    rate_calculator = rate_calculators.get(reaction_type)
+    
+    return rate_calculator(params)
 
 
-@jax.jit
-def CP_rate(α):
-    '''
-    Direct cosmic ray ionisation reaction rate, give by alpha.
-
-    For the following reaction type: CP
-    '''
-    k = α
-    return k
 
 
-@jax.jit
-def CR_rate(α, β, γ, T):
-    '''
-    Cosmic ray-induced photoreaction rate.
-
-    Reaction-dependent parameters:
-        - α = speed/probability of reaction
-        - β = temperature dependence
-        - γ 
-        
-    Physics dependent parameters:
-        - T = temperature
-        - w = dust-grain albedo == 0.5
-
-    Constants:
-        - frac = 1/300
-        - alb = 1./(1.-w)
-
-    For the following reaction type: CR
-    '''
-    k = α * (T*frac)**β * (γ)*alb
-    return k
 
 
-@jax.jit
-def photodissociation_rate(α, γ, δ, Av):
-    '''
-    For the following reaction type: PH
 
-    Photodissociation reaction rate:
-        - α = speed/probability of reaction
-        - γ
-
-    Physical parameters (input model):
-        - δ = outward dilution of the radiation field
-        - Av = species-specific extinction (connected to optical depth)
-    '''
-
-    AuvAv = 4.65 
-
-
-    k = α * δ * np.exp(-γ * Av/AuvAv)
-    return k
 
 
 

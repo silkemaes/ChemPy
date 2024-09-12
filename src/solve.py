@@ -44,15 +44,14 @@ def solve(input, Δt, rate, n,  nconsv_tot, name_prev ,dirname, solvertype,jitso
     print('Solver type:', solvertype)
     print('')
 
-    if rate == 13:
-        from ode.dcodes     import ODE
+    # if rate == 13:
+    #     from ode.dcodes     import ODE
 
-    if rate == 16:
-        if solvertype == 'scipy':
-            from ode.acodes     import ODE
-            from ode.acodes     import calc_conserved
-        if solvertype == 'torch':
-            from ode.acodes_torch import torchODE
+    # if rate == 16:
+    #     if solvertype == 'scipy':
+    from ode.acodes     import ODE
+        # if solvertype == 'torch':
+        #     from ode.acodes_torch import torchODE
 
     kB, mH, rGr, nGr, stckH, mu = getcst()    
 
@@ -65,7 +64,7 @@ def solve(input, Δt, rate, n,  nconsv_tot, name_prev ,dirname, solvertype,jitso
     v = 11
     C13C12 = 69  ## Ramstedt & Olofsson (2014)
 
-    k = rates.calculate_rates(T, δ, Av)#, rate, nshield_i, v, C13C12)
+    k = rates.get_rates(T, δ, Av)#, rate, nshield_i, v, C13C12)
     
 
     print(' >> Solving ODE for Δt =',np.round(Δt,3),'sec...')
