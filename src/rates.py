@@ -6,11 +6,14 @@ Python code to calculate the reaction rates per reaction type:
 - PH = Photodissociation
 
 Written by Silke Maes, May 2023
+
+Updated by Silke Maes to JAX, Sept 2024
 '''
 
 import numpy as np
 import shielding as shield
-from numba   import njit
+import jax.numpy as jnp
+import jax
 
 from pathlib import Path
 
@@ -45,12 +48,19 @@ alb = 1./(1.-w)
 ## Reading rate & species file
 
 
-def read_rate_file(rate):
+def read_rate_file():
     '''
     Read rates file (Rate12, UMIST database, including IP, AP, HNR - reactions) \n 
     (McElroy et al., 2013, M. VdS' papers)
     '''
 
+    # print('---------------')
+    # print(rate)
+    # print(rate.dtype)
+    # print(rate.item())
+    # print('---------------')
+
+    rate = 16
     loc = (Path(__file__).parent / f'../rates/rate{rate}.rates').resolve()
     # print(loc)
 
@@ -71,7 +81,9 @@ def read_rate_file(rate):
         β[nb-1] = float(rates[nb][9])
         γ[nb-1] = float(rates[nb][10])
 
-    return rates, type, α, β, γ
+    print(" >> Rate file read in.")
+
+    return jnp.array(rates), type, jnp.array(α), jnp.array(β), jnp.array(γ)
 
 
 def read_specs_file(chemtype, rate):
@@ -97,7 +109,7 @@ def read_specs_file(chemtype, rate):
             specs.append(specs_all[i])
 
     parnt = np.loadtxt(loc_parnt, skiprows=0   , usecols= (0,1), dtype=str)
-    
+
     return np.array(specs), parnt.T, np.array(convs)
 
 
@@ -119,32 +131,32 @@ def initialise_abs(chemtype, rate):
     specs, parnt, consv = read_specs_file(chemtype, rate)
 
     ## Initial abundances of the non-conserved species
-    abs = np.zeros(len(specs),dtype=np.float64)
+    abs = jnp.zeros(len(specs))
 
-    nshield_i = dict()
-    for i in range(len(specs)):
-        for j in range(parnt.shape[1]):
-            if specs[i] == parnt[0][j]:
-                abs[i] = parnt[1][j]
+    # nshield_i = dict()
+    # for i in range(len(specs)):
+    #     for j in range(parnt.shape[1]):
+    #         if specs[i] == parnt[0][j]:
+    #             abs[i] = parnt[1][j]
 
-        ## store initial abundances from CO and N2, because this is needed to determine the shieldingrate
-        if specs[i] == 'CO':
-            nshield_i['CO'] = abs[i]
-        elif specs[i] == 'N2':
-            nshield_i['N2'] = abs[i]
+    #     ## store initial abundances from CO and N2, because this is needed to determine the shieldingrate
+    #     if specs[i] == 'CO':
+    #         nshield_i['CO'] = abs[i]
+    #     elif specs[i] == 'N2':
+    #         nshield_i['N2'] = abs[i]
 
     ## Initialise abundances of the conserved species
-    abs_consv = np.zeros(len(consv))
-    abs_consv[1] = 0.5                  ## H2
+    abs_consv = jnp.zeros(len(consv))
+    abs_consv = abs_consv.at[1].set(0.5)              ## H2
     
-    abs = np.concatenate((abs, abs_consv))
+    abs = jnp.concatenate((abs, abs_consv))
 
-    return abs, abs_consv, specs, nshield_i
+    return abs, abs_consv, specs#, nshield_i
 
 
 ## Calculating the reaction rates
-
-def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
+@jax.jit
+def calculate_rates(T, δ, Av):#, rate, nshield_i, v, C13C12):
     '''
     Calculate the reaction rate for all reactions.
 
@@ -152,7 +164,7 @@ def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
     the correct reaction rate is calculated.
     '''
     # print(' >> Reading rate file...')
-    rates, type, α, β, γ = read_rate_file(rate)
+    rates, type, α, β, γ = read_rate_file()
     # print(' >> DONE!')
     # print('')
 
@@ -194,7 +206,7 @@ def calculate_rates(T, δ, Av, rate, nshield_i, v, C13C12):
 
 ## Rate equations
 
-@njit
+@jax.jit
 def Arrhenius_rate(α, β, γ, T):
     '''
     Arrhenius law for two-body reactions. \n \n
@@ -213,7 +225,7 @@ def Arrhenius_rate(α, β, γ, T):
     return k
 
 
-@njit
+@jax.jit
 def CP_rate(α):
     '''
     Direct cosmic ray ionisation reaction rate, give by alpha.
@@ -224,7 +236,7 @@ def CP_rate(α):
     return k
 
 
-@njit
+@jax.jit
 def CR_rate(α, β, γ, T):
     '''
     Cosmic ray-induced photoreaction rate.
@@ -248,7 +260,7 @@ def CR_rate(α, β, γ, T):
     return k
 
 
-@njit
+@jax.jit
 def photodissociation_rate(α, γ, δ, Av):
     '''
     For the following reaction type: PH

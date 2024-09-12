@@ -5,6 +5,7 @@ from time import time
 import sys
 import torchode     as to
 import torch
+import jax.numpy as jnp
 
 ##import own scripts
 import rates    as rates

@@ -1,4 +1,6 @@
 import numpy as np
+import jax.numpy as jnp
+import jax
 
 '''
 IMPORTANT NOTE:
@@ -11,7 +13,7 @@ using ratefile: rate16_IP_2330K_AP_6000K.rates, from http://udfa.ajmarkwick.net/
 
 
 
-
+@jax.jit
 def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 	'''
 	Calculate the ODEs.
@@ -44,8 +46,8 @@ def ODE(t, Y, YDOT, X, TOTAL, K, HNR, ACCR):
 
 	## Non-conserved species
 	HLOSS=-ACCR*Y[0]
-	F = np.zeros(len(Y))
-	D = np.zeros(len(Y))
+	F = jnp.zeros(len(Y))
+	D = jnp.zeros(len(Y))
 
 	## H
 	F[0]=0.+K[110]*Y[17]*Y[51]*HNR+K[128]*Y[27]*Y[51]*HNR+K[133]*Y[-2]*Y[13]*HNR+K[134]*Y[-2]*Y[-2]*HNR+K[134]*Y[-2]*Y[-2]*HNR+K[135]*Y[-2]*Y[36]*HNR+K[138]*Y[-2]*Y[30]*HNR+K[139]*Y[-2]*Y[-1]*HNR+K[139]*Y[-2]*Y[-1]*HNR+K[140]*Y[0]*Y[13]*HNR+K[140]*Y[0]*Y[13]*HNR+K[141]*Y[0]*Y[-2]*HNR+K[141]*Y[0]*Y[-2]*HNR+K[141]*Y[0]*Y[-2]*HNR+K[142]*Y[0]*Y[36]*HNR

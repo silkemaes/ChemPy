@@ -42,12 +42,12 @@ class CSEmod():
     '''
     def __init__(self, loc, dir=None, modelname=None):
 
-        if loc == 'STER':
-            outloc = '/STER/silkem/CSEchem/'
+        if loc == 'STERalt':
+            outloc = '/STER/silkem/CHEM/out/'
             outputdir = dir+'-'+modelname
             inputfile = outputdir+'/inputChemistry_'+modelname+'.txt'
-        if loc == 'STERhome':
-            outloc = '/STER/silkem/CSEchem/'
+        if loc == 'STER':
+            outloc = '/STER/silkem/CHEM/out/'
             outputdir = dir+'/models/'+modelname
             inputfile = dir+'/models/inputChemistry_'+modelname+'.txt'
         if loc == 'home':

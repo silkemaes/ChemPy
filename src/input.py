@@ -1,6 +1,7 @@
 from astropy import constants   as cst
 from astropy import units       as units
 import numpy as np
+import jax
 
 
 ## Physical constants
@@ -15,7 +16,7 @@ cm_to_m = units.cm.to('m')
 
 mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking into account the abundance of He
 
-
+@jax.jit
 def density(Mdot,v, r):
     '''
     Input 
@@ -36,6 +37,7 @@ def density(Mdot,v, r):
     return dens
 
 ## input values physics
+@jax.jit
 def setinput():
     '''
     Set input values of the model.
@@ -94,6 +96,7 @@ def set_location():
     name = 'test_torch'
     return dirname, name
 
+@jax.jit
 def getcst():
     '''
     Function to get needed physical constants & numbers.

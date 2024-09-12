@@ -11,6 +11,8 @@ from astropy import units       as units
 from astropy.constants          import M_sun
 import json
 
+import jax
+
 
 ## Physical constants
 kB = cst.k_B.cgs.value          ## Boltzmann constant [erg/K]
@@ -27,7 +29,7 @@ mu = 2.0 + 4.0*0.17             ## mu (average mass per H2 molecule), taking int
 
 sys.path.append('/STER/silkem/ChemPy/src/')
 
-from solve_n_save       import solve
+from solve              import solve
 import rates            as rates
 from ode.acodes_torch   import torchODE
 import modclass
@@ -45,11 +47,11 @@ rate = 16
 ## location to save benchmark
 out = '/STER/silkem/ChemPy/out/'
 # dirname = 'bm_C_Mdot1e-5_v20'
-dirname = 'bm_C_Mdot1e-6_v17-5_KROME_testingstage'
+dirname = 'bm_C_Mdot1e-6_v17-5_test_jax'
 
 
 ## 1D chem model
-outloc = '/STER/silkem/CSEchem/'
+outloc = '/STER/silkem/CHEM/out/'
 
 # outdir = '20210518_gridC_Mdot1e-8_v2-5_T_eps'
 # mod = 'model_2022-12-24h23-19-06'
@@ -63,7 +65,7 @@ outloc = '/STER/silkem/CSEchem/'
 outdir = '20211015_gridC_Mdot1e-6_v17-5_T_eps'
 mod = 'model_2022-12-24h17-06-51'
 
-solvertype = 'scipy'
+solvertype = 'jax'
 chemtype = 'C' 
 ## ODE solver set
 atol = 1.e-20
@@ -74,7 +76,7 @@ rtol = 1.e-5
 makeOutputDir(out+dirname+'/')
 
 ## loading the physical input from the 1D model
-CSEmodel = modclass.CSEmod(loc = 'STERhome', dir = outdir, modelname = mod)
+CSEmodel = modclass.CSEmod(loc = 'STER', dir = outdir, modelname = mod)
 
 ## input
 Mdot   = CSEmodel.Mdot
@@ -127,7 +129,7 @@ with open(out+dirname+"/meta.json", "w") as outfile:
 
 
 ## set initial conditions
-n, nconsv_tot, specs, nshield_i = rates.initialise_abs(chemtype, rate)    
+n, nconsv_tot, specs = rates.initialise_abs(chemtype, rate)    
 
 name = ''
 
@@ -143,6 +145,9 @@ if solvertype == 'torch':
 if solvertype == 'scipy':
     jit_solver = None
 
+if solvertype == 'jax':
+    jit_solver = None
+
 
 # print(dens[0], temp[0], δ[0], Av[0])
 
@@ -150,6 +155,6 @@ if solvertype == 'scipy':
 for i in range(0,len(dens)-1):
     print('\n'+str(i)+'\n')
     input = [dens[i], temp[i], δ[i], Av[i]]
-    n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
+    n, name = solve(input, dt[i], rate, n,  nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
 	
 
