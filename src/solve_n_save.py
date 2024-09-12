@@ -156,17 +156,9 @@ def solve(input, Δt, rate, n, nshield_i, nconsv_tot, name_prev ,dirname, solver
 
             stop = time()
 
-            n = np.concatenate((n, np.array([0,0.5])))
-
-            n_consv = calc_conserved(ys.T[-1], nconsv_tot)
-
-            y = np.concatenate((ys.T[-1],n_consv))
-
-            # print(n.shape, y.shape)
-
             overhead_time = (stop-start)-solve_time
 
-            abs = np.concatenate((n,y))
+            abs = np.concatenate((n,ysT[-1]))
             input = np.array([ρ,T,δ,Av,Δt])
 
             print(' >> Saving output...')

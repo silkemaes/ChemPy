@@ -148,6 +148,7 @@ if solvertype == 'scipy':
 
 ## run the models
 for i in range(0,len(dens)-1):
+    print('\n'+str(i)+'\n')
     input = [dens[i], temp[i], δ[i], Av[i]]
     n, name = solve(input, dt[i], rate, n, nshield_i, nconsv_tot, name, dirname=dirname, solvertype = solvertype,jitsolver=jit_solver, atol=atol, rtol=rtol) # type: ignore
 	

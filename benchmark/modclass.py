@@ -12,7 +12,14 @@ class ChemPyMod():
     def __init__(self, dirname, dir=None):
         outpath = '/STER/silkem/ChemPy/out/'
         
-        self.n      = np.load(outpath+dirname+'/'+dir+'/abundances.npy')[:,1:] # type: ignore
+        n      = np.load(outpath+dirname+'/'+dir+'/abundances.npy') # type: ignore
+        # print(len(n.shape))
+
+        if len(n.shape) > 1:
+            self.n = n[:,1:]
+        else:
+            self.n = n[:468]
+        # print(self.n.shape)
         self.tstep  = np.load(outpath+dirname+'/'+dir+'/tstep.npy') # type: ignore
         input       = np.load(outpath+dirname+'/'+dir+'/input.npy') # type: ignore
         self.p      = input[0:-1]
